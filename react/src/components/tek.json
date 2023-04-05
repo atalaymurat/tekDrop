@@ -1,0 +1,50 @@
+{
+  "customer": "Drop Ahsap",
+  "works": [
+    {
+      "typeOfwork": "Lake Mat Duz Panel",
+      "gloss": "Mat",
+      "color": "9003",
+      "thickness": "18",
+      "dimensions": [
+        { "length": 1200, "width": 300, "quanty": 40, "desc": "Kapak" },
+        { "length": 2000, "width": 459, "quanty": 12, "desc": "Kapak" },
+        { "length": 2300, "width": 550, "quanty": 20, "desc": "L Panel" },
+        { "length": -2 }
+      ]
+    },
+    {
+      "typeOfwork": "Lake Mat Country",
+      "dimensions": [
+        {
+          "length": 890,
+          "width": 458,
+          "quanty": 12,
+          "thickness": "",
+          "desc": "Kapak"
+        },
+        { "length": 770, "width": 390, "quanty": 10, "desc": "Kapak" },
+        { "length": 770, "width": 440, "quanty": 1, "desc": "Yan" }
+      ],
+      "gloss": "Mat",
+      "color": "9010",
+      "thickness": "22"
+    },
+    {
+      "typeOfwork": "Lake Duz Fugali Kapi Takim",
+      "dimensions": [
+        {
+          "length": 2200,
+          "width": 890,
+          "quanty": 15,
+          "thickness": "",
+          "desc": "Kapi Kasa Pervaz"
+        },
+        { "length": 2100, "width": 750, "quanty": 20, "desc": "Takim" }
+      ],
+      "gloss": "MAT",
+      "color": "9003",
+      "thickness": "55"
+    }
+  ]
+}
