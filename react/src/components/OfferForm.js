@@ -1,26 +1,55 @@
-import React, { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { Formik, Form, FieldArray } from "formik"
-import FormikControl from "./formik/FormikControl"
-import axios from "axios"
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Formik, Form, FieldArray } from "formik";
+import FormikControl from "./formik/FormikControl";
+import axios from "axios";
 
 const OfferForm = ({ offer, ...props }) => {
-  const [editMode, seteditMode] = useState(false)
-  const navigate = useNavigate()
+  const [editMode, seteditMode] = useState(false);
+  const navigate = useNavigate();
+  const teklifTipleri = [
+    { label: "Sipariş", value: "SP" },
+    { label: "Teklif", value: "TK" },
+    { label: "Preforma", value: "PF" },
+    { label: "Sözleşme", value: "SZ" },
+  ];
+  const glossTipleri = [
+    { label: "Mat 5", value: "mat 5" },
+    { label: "Mat 15", value: "mat 15" },
+    { label: "Mat 25", value: "mat 25" },
+    { label: "Mat 35", value: "mat 35" },
+    { label: "Parlak 100", value: "parlak 100" },
+  ];
+  const curTypes = [
+    { label: "TL", value: "TL" },
+    { label: "USD", value: "USD" },
+    { label: "EUR", value: "EUR" },
+  ];
+  const sideTypes = [
+    { label: "Tek Yüz", value: "TY" },
+    { label: "Çift Yüz", value: "CY" },
+    { label: "Tek Yüz Arka Astar", value: "TYA" },
+  ];
+  const unitTypes = [
+    { label: "m2", value: "m2" },
+    { label: "m/tül", value: "m" },
+    { label: "adet", value: "adet" },
+    { label: "takım", value: "takım" },
+  ];
   useEffect(() => {
-    if (offer) seteditMode(true)
-    console.log("EDIT MODE SETTED")
-  }, [offer])
+    if (offer) seteditMode(true);
+    console.log("EDIT MODE SETTED");
+  }, [offer]);
 
   const handleDelete = async () => {
     if (window.confirm("Silme Islemini Onayliyormusun")) {
       const res = await axios.delete(
         `http://localhost:3001/offers/${offer._id}`
-      )
-      console.log("Doc DESTROYED", res)
-      navigate("/offer")
+      );
+      console.log("Doc DESTROYED", res);
+      navigate("/offer");
     }
-  }
+  };
 
   return (
     <Formik
@@ -28,17 +57,28 @@ const OfferForm = ({ offer, ...props }) => {
       initialValues={
         offer || {
           customer: "",
+          offerType: "SP",
+          person: "",
+          phone: "",
+          email: "",
+          adress: "",
           discount: 0,
+          showTerms: false,
+          kdv: 18,
+          salesConditions: "",
+          paymentTerms: "",
+          deliveryDate: "",
+          packaging: "",
+          warranty: "",
+          infos: "",
           works: [
             {
               typeOfwork: "Lake Duz Panel",
-              gloss: "Mat",
+              side: "TY",
+              gloss: "mat 25",
               color: "RAL",
               thickness: 18,
               unit: "m2",
-              code: "",
-              kdv: 18,
-              price: { val: 0, cur: "TL" },
               dimensions: [
                 {
                   length: 0,
@@ -47,28 +87,31 @@ const OfferForm = ({ offer, ...props }) => {
                   desc: "",
                 },
               ],
+              price: { val: 0, cur: "TL" },
+              code: "",
+              noList: false,
             },
           ],
         }
       }
       onSubmit={async (values, { setSubmitting, resetForm }) => {
         if (!editMode) {
-          const res = await axios.post("http://localhost:3001/offers/", values)
-          console.log("response from post values :: ", res)
-          setSubmitting(false)
-          resetForm()
-          navigate(`/offer/${res.data.ofr._id}`)
+          const res = await axios.post("http://localhost:3001/offers/", values);
+          console.log("response from post values :: ", res);
+          setSubmitting(false);
+          resetForm();
+          navigate(`/offer/${res.data.ofr._id}`);
         }
         if (editMode) {
-          alert(JSON.stringify("YOU ARE IN EDIT MODE"))
+          alert(JSON.stringify("YOU ARE IN EDIT MODE"));
           const res = await axios.patch(
             `http://localhost:3001/offers/${offer._id}`,
             values
-          )
-          console.log("response from post values :: ", res)
-          setSubmitting(false)
-          navigate("/offer")
-        } else return
+          );
+          console.log("response from post values :: ", res);
+          setSubmitting(false);
+          navigate("/offer");
+        } else return;
       }}
     >
       {({ values, setFieldValue }) => {
@@ -83,7 +126,40 @@ const OfferForm = ({ offer, ...props }) => {
                   label="Musteri"
                   autoFocus
                 />
+                <FormikControl
+                  control="select"
+                  type="text"
+                  name="offerType"
+                  options={teklifTipleri}
+                  label="Teklif Tipi"
+                />
                 <div className="bg-blue-200 grid grid-cols-4 gap-1">
+                  <FormikControl
+                    control="input"
+                    type="text"
+                    name="person"
+                    label="Yetkili"
+                  />
+                  <FormikControl
+                    control="input"
+                    type="text"
+                    name="phone"
+                    label="Telefon"
+                  />
+                  <FormikControl
+                    control="input"
+                    type="text"
+                    name="email"
+                    label="Email"
+                  />
+                </div>
+                <FormikControl
+                  control="input"
+                  type="text"
+                  name="adress"
+                  label="Adres"
+                />
+                <div className="bg-blue-200 grid grid-cols-4 gap-1 pt-1">
                   <FormikControl
                     control="input"
                     type="number"
@@ -109,15 +185,27 @@ const OfferForm = ({ offer, ...props }) => {
                         } px-4 py-8 rounded-lg w-full my-4`}
                       >
                         <div className="grid grid-cols-2 gap-2">
-                          <FormikControl
-                            control="input"
-                            type="text"
-                            name={`works.${i}.typeOfwork`}
-                            label="Is Tipi"
-                          />
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="col-span-2">
+                              <FormikControl
+                                control="input"
+                                type="text"
+                                name={`works.${i}.typeOfwork`}
+                                label="Is Tipi"
+                              />
+                            </div>
+                            <FormikControl
+                              control="select"
+                              options={sideTypes}
+                              type="text"
+                              name={`works.${i}.side`}
+                              label="Yüz"
+                            />
+                          </div>
                           <div className="grid grid-cols-3 gap-2">
                             <FormikControl
-                              control="input"
+                              control="select"
+                              options={glossTipleri}
                               type="text"
                               name={`works.${i}.gloss`}
                               label="Gloss"
@@ -136,7 +224,8 @@ const OfferForm = ({ offer, ...props }) => {
                                 label="Kalinlik"
                               />
                               <FormikControl
-                                control="input"
+                                control="select"
+                                options={unitTypes}
                                 type="text"
                                 name={`works.${i}.unit`}
                                 label="Birim"
@@ -153,7 +242,8 @@ const OfferForm = ({ offer, ...props }) => {
                             label="Fiyat"
                           />
                           <FormikControl
-                            control="input"
+                            control="select"
+                            options={curTypes}
                             type="text"
                             name={`works.${i}.price.cur`}
                             label="Para Birimi"
@@ -163,6 +253,11 @@ const OfferForm = ({ offer, ...props }) => {
                             type="text"
                             name={`works.${i}.code`}
                             label="Kod"
+                          />
+                          <FormikControl
+                            control="checkbox"
+                            name={`works.${i}.noList`}
+                            label="No List"
                           />
                         </div>
                       </div>
@@ -174,12 +269,11 @@ const OfferForm = ({ offer, ...props }) => {
                             onClick={() =>
                               push({
                                 typeOfwork: "",
+                                side: "TY",
+                                gloss: "mat 15",
                                 color: "",
-                                gloss: "",
                                 thickness: 0,
-                                unit: "",
-                                code: "",
-                                price: { val: 0, cur: "TL" },
+                                unit: "m2",
                                 dimensions: [
                                   {
                                     length: 0,
@@ -188,6 +282,9 @@ const OfferForm = ({ offer, ...props }) => {
                                     desc: "",
                                   },
                                 ],
+                                code: "",
+                                noList: false,
+                                price: { val: 0, cur: "TL" },
                               })
                             }
                           >
@@ -203,7 +300,7 @@ const OfferForm = ({ offer, ...props }) => {
                                     "Silme Islemini Onayliyormusun"
                                   )
                                 )
-                                  remove(i)
+                                  remove(i);
                               }}
                             >
                               X
@@ -216,7 +313,7 @@ const OfferForm = ({ offer, ...props }) => {
                           className="btn-cancel"
                           onClick={() => {
                             if (window.confirm("Silme Islemini Onayliyormusun"))
-                              remove(i)
+                              remove(i);
                           }}
                         >
                           X
@@ -226,6 +323,53 @@ const OfferForm = ({ offer, ...props }) => {
                   )}
                 </FieldArray>
               ))}
+              {/* SATIS KONDİSYONLARI BLOK   */}
+              <div className="bg-red-200 px-4 py-8 mt-2 rounded-lg w-full flex flex-col">
+                <FormikControl
+                  control="input"
+                  type="text"
+                  name="salesConditions"
+                  label="Teslim Yeri"
+                />
+                <FormikControl
+                  control="textarea"
+                  type="text"
+                  name="paymentTerms"
+                  label="Ödeme Şekli"
+                />
+                <FormikControl
+                  control="input"
+                  type="text"
+                  name="deliveryDate"
+                  label="Teslim Süresi"
+                />
+                <FormikControl
+                  control="input"
+                  type="text"
+                  name="packaging"
+                  label="Paketleme"
+                />
+                <FormikControl
+                  control="input"
+                  type="text"
+                  name="warranty"
+                  label="Garanti Şartları"
+                />
+                <FormikControl
+                  control="textarea"
+                  type="text"
+                  name="infos"
+                  label="Bilgi"
+                />
+                <div className="mt-2 flex h-10">
+                  <FormikControl
+                    control="checkbox"
+                    name={"showTerms"}
+                    label="Sözleşme Şartlarını Göster"
+                  />
+                </div>
+              </div>
+              {/* SATIS KONDİSYONLARI BLOK   */}
 
               <button type="submit" className="btn-submit mt-2 mb-2">
                 Kaydet
@@ -239,16 +383,17 @@ const OfferForm = ({ offer, ...props }) => {
                   Sil
                 </button>
               )}
+
               <div className="w-100 bg-slate-400 h-100 p-8 my-4 ">
-                <p>{JSON.stringify(values, 4, null)}</p>
+                <pre>{JSON.stringify(values, null, 4)}</pre>
               </div>
             </div>
           </Form>
-        )
+        );
       }}
     </Formik>
-  )
-}
+  );
+};
 
 const Dimensions = ({ works, name }) => {
   return (
@@ -295,7 +440,7 @@ const Dimensions = ({ works, name }) => {
                           tabIndex="-1"
                           onClick={() => {
                             if (window.confirm("Silme Islemini Onayliyormusun"))
-                              remove(i)
+                              remove(i);
                           }}
                         >
                           <svg
@@ -337,7 +482,7 @@ const Dimensions = ({ works, name }) => {
                                     "Silme Islemini Onayliyormusun"
                                   )
                                 )
-                                  remove(i)
+                                  remove(i);
                               }}
                             >
                               <svg
@@ -364,7 +509,7 @@ const Dimensions = ({ works, name }) => {
         )}
       </FieldArray>
     </div>
-  )
-}
+  );
+};
 
-export default OfferForm
+export default OfferForm;
