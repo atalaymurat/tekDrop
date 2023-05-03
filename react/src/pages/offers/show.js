@@ -33,8 +33,8 @@ function Show() {
         </div>
         <Customer offer={offer} />
         <PriceTable works={offer.works} offer={offer} />
-        <InfoTable offer={offer} />
         <Work works={offer.works} />
+        <InfoTable offer={offer} />
 
         <pre className="p-4 my-4 hidden">{JSON.stringify(offer, null, 2)}</pre>
       </div>
@@ -120,7 +120,10 @@ const InfoTable = ({ offer }) => {
       <div className="grid grid-cols-6 gap-1 text-sm my-2">
         {titles.map((t, i) => (
           <>
-            <div key={i} className="border-b font-semibold pl-1">
+            <div
+              key={i}
+              className="border-b font-semibold pl-1 break-inside-avoid"
+            >
               <div>{t.tr}</div>
               <div className="font-light text-sm">{t.en}</div>
             </div>
@@ -148,7 +151,11 @@ const Work = ({ works }) => {
         .map((w, i) => {
           if (!w.noList) {
             return (
-              <div className="flex flex-col my-4 text-sm" key={"works-" + i}>
+              <div className="flex flex-col my-2 text-sm" key={i}>
+                <div className="text-center font-semibold py-2 break-inside-avoid break-before-auto">
+                  <h1>Sipariş Detayı</h1>
+                  <div className="text-xs font-normal">Order Detail</div>
+                </div>
                 <div className="grid grid-cols-6 gap-2 content-center bg-gray-50  px-2 border rounded-md shadow-md">
                   <div className="grid grid-cols-8 col-span-6">
                     <div className="grid grid-cols-2 gap-1">
@@ -374,9 +381,9 @@ const PriceTable = ({ works, offer }) => {
         <>
           {works.filter((e) => e.price.cur === cr).length ? (
             <>
-              <div className="grid grid-cols-8 gap-1 bg-stone-500 text-white font-medium text-sm">
+              <div key={i} className="grid grid-cols-8 gap-1 bg-stone-500 text-white font-medium text-sm">
                 <div className="grid grid-cols-4 gap-1">
-                  <div className="text-center">No</div>
+                  <div className="text-center pl-1">No</div>
                   <div className="col-span-3 text-center">
                     <div>Kod</div>
                     <div className="text-xs font-normal">Code</div>
