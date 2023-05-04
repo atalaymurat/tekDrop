@@ -11,7 +11,7 @@ function Home() {
   const getData = async () => {
     try {
       setLoading(true);
-      const dt = await axios.get("http://localhost:3001/offers");
+      const dt = await axios.get("/offers");
       setData(dt.data);
       setError(null);
       setLoading(false);
@@ -35,7 +35,7 @@ function Home() {
       </div>
       <div className="px-4">
         <Link to="/offer">
-          <button className="btn-warn">Yeni Teklif</button>
+          <button className="btn-warn">Sipariş Liste</button>
         </Link>
         <Link to="/liste">
           <button className="btn-warn">Fiyat Liste</button>

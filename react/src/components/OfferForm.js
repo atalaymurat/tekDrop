@@ -45,7 +45,7 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
   const handleDelete = async () => {
     if (window.confirm("Silme Islemini Onayliyormusun")) {
       const res = await axios.delete(
-        `http://localhost:3001/offers/${offer._id}`
+        `/offers/${offer._id}`
       );
       console.log("Doc DESTROYED", res);
       navigate("/offer");
@@ -97,7 +97,7 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
       }
       onSubmit={async (values, { setSubmitting, resetForm }) => {
         if (!editMode) {
-          const res = await axios.post("http://localhost:3001/offers/", values);
+          const res = await axios.post("/offers/", values);
           console.log("response from post values :: ", res);
           setSubmitting(false);
           resetForm();
@@ -106,7 +106,7 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
         if (editMode) {
           alert(JSON.stringify("YOU ARE IN EDIT MODE"));
           const res = await axios.patch(
-            `http://localhost:3001/offers/${offer._id}`,
+            `/offers/${offer._id}`,
             values
           );
           console.log("response from post values :: ", res);

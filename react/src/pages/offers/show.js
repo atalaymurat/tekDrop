@@ -9,7 +9,7 @@ function Show() {
 
   useEffect(() => {
     const getData = async () => {
-      const { data } = await axios.get(`http://localhost:3001/offers/${id}`);
+      const { data } = await axios.get(`/offers/${id}`);
       setOffer(data);
     };
     console.log("Use Effect Work");

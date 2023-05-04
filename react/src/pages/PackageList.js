@@ -8,10 +8,9 @@ function PackageList() {
 
   useEffect(() => {
     const getData = async () => {
-      const { data } = await axios.get(`http://localhost:3001/offers/${id}`)
+      const { data } = await axios.get(`/offers/${id}`)
       setOffer(data)
     }
-    console.log("Use Effect Work")
     getData()
   }, [id])
   if (offer) {
@@ -24,7 +23,7 @@ function PackageList() {
           <Company offer={offer} />
           <List offer={offer} />
 
-          <pre className="border">{JSON.stringify(offer, null, 2)}</pre>
+          <pre className="border">{/* JSON.stringify(offer, null, 2)*/}</pre>
         </div>
       </div>
     )
@@ -49,7 +48,7 @@ const Company = ({ offer }) => {
       {fieldData.map((e, i) => {
         return (
           <React.Fragment key={i}>
-            <div className="border" key="i">
+            <div className="border font-medium" key="i">
               {e.title}
             </div>
             <div className="border col-span-3">{e.data}</div>
@@ -63,7 +62,7 @@ const Company = ({ offer }) => {
 const List = ({ offer }) => {
   const { works } = offer
   return (
-    <div className="grid grid-cols-3 gap-1 my-4">
+    <div className="grid grid-cols-3 gap-1 my-4 break-before-auto border border-green-700 p-2">
       {works.map((w, i) => {
         const fData = [
           { title: "Sipariş", en: "Order", data: w.typeOfwork },
@@ -78,11 +77,11 @@ const List = ({ offer }) => {
               return (
                 <React.Fragment key={n}>
                   <div
-                    className={`grid gap-1 ${
+                    className={`grid gap-1 break-inside-avoid ${
                       n === 0 ? "col-span-3 grid-cols-9" : "grid-cols-3"
                     }`}
                   >
-                    <div className={`border`}>{d.title}</div>
+                    <div className={`border font-medium`}>{d.title}</div>
                     <div
                       className={`border ${
                         n === 0 ? "col-span-8" : "col-span-2"
@@ -94,7 +93,7 @@ const List = ({ offer }) => {
                 </React.Fragment>
               )
             })}
-            <div className="col-span-3">
+            <div className="col-span-3 border border-green-800 mb-6 break-after-auto">
               <Dims dims={w.dimensions} thickness={w.thickness} />
             </div>
           </React.Fragment>
@@ -106,15 +105,16 @@ const List = ({ offer }) => {
 const Dims = ({ dims, thickness }) => {
   const renderBox = (quanty) => {
     let result = []
-    for (let i = 0; i < quanty; i++) {
+    for (let i = 0; i < (quanty / 2 ); i++) {
       result.push(
         <svg
+          key={i}
           aria-hidden="true"
-          className="w-7 h-7 border"
+          className="w-9 h-9 border"
           fill="none"
           stroke="currentColor"
           strokeWidth={1}
-          viewBox="0 0 24 24"
+          viewBox="0 0 22 22"
           xmlns="http://www.w3.org/2000/svg"
         >
           <path
@@ -125,21 +125,20 @@ const Dims = ({ dims, thickness }) => {
         </svg>
       )
     }
-    console.log("RESULT", result )
     return <>{result}</>
   }
   return (
     <>
-      <div className="grid grid-cols-2 gap-1">
+      <div className="grid grid-cols-2 gap-1 break-inside-avoid">
         <React.Fragment>
-          <div className="border grid grid-cols-11 gap-1">
+          <div className="border grid grid-cols-11 gap-1 font-medium">
             <div className="border">No</div>
             <div className="border col-span-3">Boy</div>
             <div className="border col-span-3">En</div>
             <div className="border col-span-2">Kalınlık</div>
             <div className="border col-span-2">Adet</div>
           </div>
-          <div className="border">Kontrol</div>
+          <div className="border font-medium">Kontrol</div>
         </React.Fragment>
         {dims.map((d, i) => {
           return (
@@ -154,7 +153,7 @@ const Dims = ({ dims, thickness }) => {
                 <div className="border col-span-2">{d.quanty}</div>
               </div>
               <div className="border flex flex-wrap">
-                {renderBox(d.quanty / 2)}
+                {renderBox(d.quanty)}
               </div>
             </React.Fragment>
           )
