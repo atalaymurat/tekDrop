@@ -16,14 +16,22 @@ function Show() {
     getData();
   }, [id]);
 
+  const offerHeading = (tp) =>
+    (tp === "SP" && { tr: "Sipariş Formu", en: "Order Confirmation" }) ||
+    (tp === "SZ" && { tr: "Satış Sözleşmesi", en: "Sales Contract" }) ||
+    (tp === "TK" && { tr: "Fiyat Teklifi", en: "Sales Offer" }) ||
+    (tp === "PF" && { tr: "Preforma Fatura", en: "Preforma Invoice" });
+
   if (!offer) return <div>Loading..</div>;
 
   if (offer)
     return (
       <div className="max-w-4xl mx-auto flex flex-col">
         <h1 className="mx-auto font-extrabold text-xl">
-          <div>Sipariş Formu</div>
-          <div className="text-sm font-normal">(Order Confirmation)</div>
+          <div>{offerHeading(offer.offerType).tr}</div>
+          <div className="text-sm font-normal">
+            {offerHeading(offer.offerType).en}
+          </div>
         </h1>
         <div className="ml-auto border-b">
           <div className="border-b text-sm font-semibold">
@@ -164,7 +172,7 @@ const Work = ({ works }) => {
                         <div className="text-xs font-light">Code</div>
                       </div>
                       <div className="flex items-center text-sm font-light">
-                        {w.code || "101"}{" "}
+                        {w.code || "101"}
                       </div>
                     </div>
                     <div className="font-semibold">
@@ -333,9 +341,9 @@ const Customer = ({ offer }) => {
       <img
         src={process.env.PUBLIC_URL + "/dropLogo.jpeg"}
         alt="logo"
-        className="object-cover h-[120px]"
+        className="object-cover h-[130px]"
       />
-      <div className="grid grid-cols-2 gap-2 col-span-4 content-center">
+      <div className="grid grid-cols-2 gap-2 col-span-4 content-center text-sm">
         <div className="grid grid-cols-6 col-span-2 gap-1 content-center">
           <div className="px-1 border-b font-semibold">
             <div>Firma</div>
@@ -370,7 +378,7 @@ const PriceTable = ({ works, offer }) => {
   }
   return (
     <div className="flex flex-col border mb-6 w-full my-2  shadow-lg rounded px-2 break-inside-avoid">
-      <h1 className="mx-auto py-2 text-center font-semibold text-xl">
+      <h1 className="mx-auto py-2 text-center font-semibold text-base">
         <div>Fiyatlandırma</div>
         <div className="text-xs font-normal flex items-center justify-center">
           Price Offer
@@ -381,7 +389,10 @@ const PriceTable = ({ works, offer }) => {
         <>
           {works.filter((e) => e.price.cur === cr).length ? (
             <>
-              <div key={i} className="grid grid-cols-8 gap-1 bg-stone-500 text-white font-medium text-sm">
+              <div
+                key={i}
+                className="grid grid-cols-8 gap-1 bg-stone-500 text-white font-medium text-sm"
+              >
                 <div className="grid grid-cols-4 gap-1">
                   <div className="text-center pl-1">No</div>
                   <div className="col-span-3 text-center">

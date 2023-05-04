@@ -7,6 +7,7 @@ import FiyatListe from "./pages/FiyatListe"
 import IndexOffer from "./pages/offers/index"
 import ShowOffer from "./pages/offers/show"
 import EditOffer from "./pages/offers/edit"
+import Package from "./pages/PackageList"
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/offer/new" element={<NewOffer />} />
           <Route path="/offer/edit/:id" element={<EditOffer />} />
           <Route path="/offer/:id" element={<ShowOffer />} />
+          <Route path="/package/:id" element={<Package />} />
           <Route path="/liste" element={<FiyatListe />} />
           <Route path="*" element={<NoPage />} />
         </Route>

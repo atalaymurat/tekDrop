@@ -4,7 +4,7 @@ import { Formik, Form, FieldArray } from "formik";
 import FormikControl from "./formik/FormikControl";
 import axios from "axios";
 
-const OfferForm = ({ offer, ...props }) => {
+const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
   const [editMode, seteditMode] = useState(false);
   const navigate = useNavigate();
   const teklifTipleri = [
@@ -38,7 +38,8 @@ const OfferForm = ({ offer, ...props }) => {
   ];
   useEffect(() => {
     if (offer) seteditMode(true);
-    console.log("EDIT MODE SETTED");
+    
+
   }, [offer]);
 
   const handleDelete = async () => {
@@ -132,6 +133,7 @@ const OfferForm = ({ offer, ...props }) => {
                   name="offerType"
                   options={teklifTipleri}
                   label="Teklif Tipi"
+                  onClick={() => setFormHead(values.offerType)}
                 />
                 <div className="bg-blue-200 grid grid-cols-4 gap-1">
                   <FormikControl
