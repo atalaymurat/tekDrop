@@ -7,7 +7,7 @@ const NewOffer = () => {
     (tp === "SP" && { tr: "Sipariş Formu", en: "Order Confirmation" }) ||
     (tp === "SZ" && { tr: "Sstış Sözleşmesi", en: "Sales Contract" }) ||
     (tp === "TK" && { tr: "Fiyat Teklifi", en: "Price Offer" }) ||
-    (tp === "PF" && { tr: "Preforma", en: "Preforma Invoice" });
+    (tp === "PF" && { tr: "Proforma", en: "Proforma Invoice" });
   return (
     <div>
       <div className="font-bold text-4xl text-center my-2">{offerHeading(formHead).tr}</div>

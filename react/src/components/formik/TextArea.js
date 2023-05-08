@@ -5,7 +5,6 @@ import TextError from './TextError'
 function TextArea(props) {
   const [field, meta] = useField(props)
   const { label, name, ...rest} = props
-  console.log("field", field)
   return (
     <div className="flex flex-col space-y-1">
       <label htmlFor={name} className="block">

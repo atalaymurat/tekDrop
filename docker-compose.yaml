@@ -14,6 +14,16 @@ services:
     networks:
       - teklif-net
 
+  mongo-express:
+    image: mongo-express
+    restart: always
+    networks:
+      - teklif-net
+    depends_on: 
+      - mongo
+    ports:
+      - 8081:8081
+
 # API NODE EXPRESS
   express:
     container_name: express

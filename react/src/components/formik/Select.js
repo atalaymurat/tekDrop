@@ -5,7 +5,7 @@ import TextError from './TextError'
 function Select(props) {
   const { label, name, options, ...rest } = props
   return (
-    <div className="flex flex-col space-y-1">
+    <div className="flex flex-col">
       <label htmlFor="{name}" className="block">
         <span className="text-sm font-semibold text-gray-500">{label}</span>
       </label>
@@ -14,7 +14,7 @@ function Select(props) {
         id={name}
         name={name}
         {...rest}
-        className={`px-4 py-2 border border-gray-300 rounded`}
+        className={`px-1 py-[6px] border border-gray-300 rounded`}
       >
         {options.map((op) => {
           return (

@@ -1,32 +1,32 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
-import { localeDate } from "../../lib/helpers";
+import React, { useState, useEffect } from "react"
+import { useParams } from "react-router-dom"
+import axios from "axios"
+import { localeDate } from "../../lib/helpers"
 
 function Show() {
-  const [offer, setOffer] = useState(null);
-  const { id } = useParams();
+  const [offer, setOffer] = useState(null)
+  const { id } = useParams()
 
   useEffect(() => {
     const getData = async () => {
-      const { data } = await axios.get(`/offers/${id}`);
-      setOffer(data);
-    };
-    console.log("Use Effect Work");
-    getData();
-  }, [id]);
+      const { data } = await axios.get(`/offers/${id}`)
+      setOffer(data)
+    }
+    console.log("Use Effect Work")
+    getData()
+  }, [id])
 
   const offerHeading = (tp) =>
     (tp === "SP" && { tr: "Sipariş Formu", en: "Order Confirmation" }) ||
     (tp === "SZ" && { tr: "Satış Sözleşmesi", en: "Sales Contract" }) ||
     (tp === "TK" && { tr: "Fiyat Teklifi", en: "Sales Offer" }) ||
-    (tp === "PF" && { tr: "Preforma Fatura", en: "Preforma Invoice" });
+    (tp === "PF" && { tr: "Proforma Fatura", en: "Proforma Invoice" })
 
-  if (!offer) return <div>Loading..</div>;
+  if (!offer) return <div>Loading..</div>
 
   if (offer)
     return (
-      <div className="max-w-4xl mx-auto flex flex-col">
+      <div className="max-w-4xl mx-auto flex flex-col lining-nums">
         <h1 className="mx-auto font-extrabold text-xl">
           <div>{offerHeading(offer.offerType).tr}</div>
           <div className="text-sm font-normal">
@@ -39,6 +39,7 @@ function Show() {
           </div>
           <div className="ml-auto text-sm">{localeDate(offer.createdAt)}</div>
         </div>
+        <div className="ml-auto text-xs">{offer.offerCode}</div>
         <Customer offer={offer} />
         <PriceTable works={offer.works} offer={offer} />
         <Work works={offer.works} />
@@ -46,10 +47,10 @@ function Show() {
 
         <pre className="p-4 my-4 hidden">{JSON.stringify(offer, null, 2)}</pre>
       </div>
-    );
+    )
 }
 
-export default Show;
+export default Show
 
 const InfoTable = ({ offer }) => {
   const {
@@ -60,7 +61,7 @@ const InfoTable = ({ offer }) => {
     packaging,
     warranty,
     infos,
-  } = offer;
+  } = offer
   const titles = [
     {
       tr: "Teslim Yeri",
@@ -118,20 +119,17 @@ const InfoTable = ({ offer }) => {
           Sipariş formunda belirtilen ölçüler, kesin imalat ölçüleri olarak
           kabul edilecektir. sipariş formu ölçülerini kontrol ediniz.
           <br />
-          <textarea className="w-full h-full">{infos}</textarea>
+          <div className="w-full h-full">{infos}</div>
         </div>
       ),
     },
-  ];
+  ]
   if (showTerms) {
     return (
       <div className="grid grid-cols-6 gap-1 text-sm my-2">
         {titles.map((t, i) => (
-          <>
-            <div
-              key={i}
-              className="border-b font-semibold pl-1 break-inside-avoid"
-            >
+          <React.Fragment key={i}>
+            <div className="border-b font-semibold pl-1 break-inside-avoid">
               <div>{t.tr}</div>
               <div className="font-light text-sm">{t.en}</div>
             </div>
@@ -139,18 +137,18 @@ const InfoTable = ({ offer }) => {
               <div>{t.desc}</div>
               <div className="font-light text-sm"></div>
             </div>
-          </>
+          </React.Fragment>
         ))}
       </div>
-    );
+    )
   } else {
-    return <></>;
+    return <></>
   }
-};
+}
 
 const Work = ({ works }) => {
   if (!works) {
-    return <div>Loading...</div>;
+    return <div>Loading...</div>
   }
   return (
     <div>
@@ -165,35 +163,40 @@ const Work = ({ works }) => {
                   <div className="text-xs font-normal">Order Detail</div>
                 </div>
                 <div className="grid grid-cols-6 gap-2 content-center bg-gray-50  px-2 border rounded-md shadow-md">
-                  <div className="grid grid-cols-8 col-span-6">
-                    <div className="grid grid-cols-2 gap-1">
+                  <div className="grid grid-cols-6 col-span-6">
+                    <div className="grid grid-cols-4 col-span-2 gap-1">
                       <div className="font-semibold">
                         <div>Kod</div>
                         <div className="text-xs font-light">Code</div>
                       </div>
-                      <div className="flex items-center text-sm font-light">
-                        {w.code || "101"}
+                      <div className="flex items-center col-span-3 text-sm font-medium">
+                        {w.code}
                       </div>
                     </div>
+
                     <div className="font-semibold">
                       <div>Sipariş</div>
                       <div className="text-xs font-light">Order</div>
                     </div>
-                    <div className="col-span-6 flex items-center pl-2">
-                      {w.typeOfwork} {w.color} {w.gloss} {w.side}
+
+                    <div className="flex items-center col-span-3 pl-2 capitalize">
+                      {w.product
+                        ? w.product.name + " " + w.typeOfwork
+                        : w.typeOfwork}{" "}
+                      {w.color} {w.gloss}
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-1 col-span-2">
+                  <div className="grid grid-cols-4 gap-1 col-span-2">
                     <div className="font-semibold">
                       <div>Renk</div>
                       <div className="text-xs font-light">Color</div>
                     </div>
-                    <div className="flex items-center pl-2">{w.color}</div>
+                    <div className="flex items-center col-span-3 ">{w.color}</div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-1 col-span-2">
-                    <div className="font-semibold text-right pr-4">
+                    <div className="font-semibold pr-4">
                       <div>Parlaklık</div>
                       <div className="text-xs font-light">Gloss</div>
                     </div>
@@ -244,17 +247,17 @@ const Work = ({ works }) => {
                   </div>
                 </div>
               </div>
-            );
+            )
           }
-          return null;
+          return null
         })}
     </div>
-  );
-};
+  )
+}
 
 const Dimensions = ({ dimensions, unit, work }) => {
   if (!dimensions || !unit) {
-    return <div>Loading Dims ... or No Dims</div>;
+    return <div>Loading Dims ... or No DATA</div>
   }
   return (
     <>
@@ -319,12 +322,12 @@ const Dimensions = ({ dimensions, unit, work }) => {
                 </div>
               ))}
             </div>
-          );
+          )
         })}
       </div>
     </>
-  );
-};
+  )
+}
 
 const Customer = ({ offer }) => {
   const colsData = (offer) => [
@@ -332,9 +335,9 @@ const Customer = ({ offer }) => {
     { title: "Eposta", en: "Email", text: offer.email },
     { title: "Tel", en: "Phone", text: offer.phone },
     { title: "Adres", en: "Address", text: offer.adress },
-  ];
+  ]
   if (!offer) {
-    return <div>Loading offer</div>;
+    return <div>Loading offer</div>
   }
   return (
     <div className="grid grid-cols-5 gap-4 content-center">
@@ -369,12 +372,12 @@ const Customer = ({ offer }) => {
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
 const PriceTable = ({ works, offer }) => {
   if (!works) {
-    return <div>Loading works</div>;
+    return <div>Loading works</div>
   }
   return (
     <div className="flex flex-col border mb-6 w-full my-2  shadow-lg rounded px-2 break-inside-avoid">
@@ -386,13 +389,10 @@ const PriceTable = ({ works, offer }) => {
       </h1>
 
       {["TL", "USD", "EUR"].map((cr, i) => (
-        <>
+        <React.Fragment key={i}>
           {works.filter((e) => e.price.cur === cr).length ? (
-            <>
-              <div
-                key={i}
-                className="grid grid-cols-8 gap-1 bg-stone-500 text-white font-medium text-sm"
-              >
+            <React.Fragment key={i}>
+              <div className="grid grid-cols-8 gap-1 bg-stone-500 text-white font-medium text-sm">
                 <div className="grid grid-cols-4 gap-1">
                   <div className="text-center pl-1">No</div>
                   <div className="col-span-3 text-center">
@@ -438,11 +438,16 @@ const PriceTable = ({ works, offer }) => {
                         <div className="text-center font-light text-xs">
                           {String(i + 1).padStart(2, "0")}
                         </div>
-                        <div className="col-span-3 text-center">{w.code}</div>
+                        <div className="col-span-3 text-center text-xs">
+                          {w.code.slice(3)}
+                        </div>
                       </div>
 
-                      <div className="col-span-3">
-                        {w.typeOfwork} {w.color} {w.gloss} {w.side}
+                      <div className="col-span-3 capitalize">
+                        {w.product
+                          ? w.product.name + " " + w.typeOfwork
+                          : w.typeOfwork}{" "}
+                        {w.color}
                       </div>
 
                       <div className="col-span-2 grid grid-cols-2 gap-1">
@@ -475,19 +480,19 @@ const PriceTable = ({ works, offer }) => {
                   </div>
                 ))}
               <GrandTotalTable works={works} offer={offer} cur={cr} />
-            </>
+            </React.Fragment>
           ) : (
             <div></div>
           )}
-        </>
+        </React.Fragment>
       ))}
     </div>
-  );
-};
+  )
+}
 
 const GrandTotalTable = ({ works, offer, cur }) => {
   if (!works || !offer)
-    return <div className="bg-green-500">Loading works...</div>;
+    return <div className="bg-green-500">Loading works...</div>
 
   return (
     <div className="grid grid-cols-5 gap-1 mt-4 my-4 py-2">
@@ -559,21 +564,21 @@ const GrandTotalTable = ({ works, offer, cur }) => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const formPrice = (number) => {
-  let n = Number(number);
+  let n = Number(number)
   return n.toLocaleString("tr-TR", {
     maximumFractionDigits: 2,
     minimumFractionDigits: 2,
-  });
-};
+  })
+}
 const formNumber = (number) => {
-  let n = Number(number);
+  let n = Number(number)
   return n.toLocaleString("tr-TR", {
     maximumFractionDigits: 4,
     minimumFractionDigits: 2,
-  });
+  })
   // return new Intl.NumberFormat("tr-TR").format(n);
-};
+}

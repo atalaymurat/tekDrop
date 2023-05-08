@@ -1,56 +1,102 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Formik, Form, FieldArray } from "formik";
-import FormikControl from "./formik/FormikControl";
-import axios from "axios";
+import React, { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { Formik, Form, FieldArray } from "formik"
+import FormikControl from "./formik/FormikControl"
+import axios from "axios"
 
 const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
-  const [editMode, seteditMode] = useState(false);
-  const navigate = useNavigate();
+  const [editMode, seteditMode] = useState(false)
+  const [products, setProducts] = useState([])
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (offer) seteditMode(true)
+  }, [offer])
+
+  useEffect(() => {
+    const getData = async () => {
+      const { data } = await axios.get("/products")
+      setProducts(data)
+    }
+    getData()
+  }, [])
+
+  const setProductOptions = (data) => {
+    const prdOps = data.map((d) => {
+      return { label: d.name.toLocaleUpperCase("en-US"), value: d._id }
+    })
+    return prdOps
+  }
+
   const teklifTipleri = [
     { label: "Sipariş", value: "SP" },
     { label: "Teklif", value: "TK" },
-    { label: "Preforma", value: "PF" },
+    { label: "Pr0forma", value: "PF" },
     { label: "Sözleşme", value: "SZ" },
-  ];
+  ]
   const glossTipleri = [
     { label: "Mat 5", value: "mat 5" },
     { label: "Mat 15", value: "mat 15" },
     { label: "Mat 25", value: "mat 25" },
     { label: "Mat 35", value: "mat 35" },
     { label: "Parlak 100", value: "parlak 100" },
-  ];
+  ]
   const curTypes = [
     { label: "TL", value: "TL" },
     { label: "USD", value: "USD" },
     { label: "EUR", value: "EUR" },
-  ];
+  ]
   const sideTypes = [
     { label: "Tek Yüz", value: "TY" },
     { label: "Çift Yüz", value: "CY" },
     { label: "Tek Yüz Arka Astar", value: "TYA" },
-  ];
+  ]
   const unitTypes = [
     { label: "m2", value: "m2" },
     { label: "m/tül", value: "m" },
     { label: "adet", value: "adet" },
     { label: "takım", value: "takım" },
-  ];
-  useEffect(() => {
-    if (offer) seteditMode(true);
-    
-
-  }, [offer]);
+  ]
 
   const handleDelete = async () => {
     if (window.confirm("Silme Islemini Onayliyormusun")) {
-      const res = await axios.delete(
-        `/offers/${offer._id}`
-      );
-      console.log("Doc DESTROYED", res);
-      navigate("/offer");
+      await axios.delete(`/offers/${offer._id}`)
+      navigate("/offer")
     }
-  };
+  }
+  const reformData = (data) => {
+    // const filterdWorks = data.works.filter((d) => d.typeOfwork !== "")
+    // data.works = filterdWorks
+    data.discount = Number(data.discount) || 0
+    data.kdv = Number(data.kdv) || 0
+    data.customer = data.customer || ""
+
+    data.works.map((w, i) => {
+      if (w.product) {
+        data.works[i].product = w.product.value || w.product._id
+      }
+      
+
+      data.works[i].thickness = Number(data.works[i].thickness) || 0
+      data.works[i].price.val = Number(data.works[i].price.val) || 0
+      data.works[i].code = data.works[i].code || ""
+      w.dimensions.map((d, n) => {
+        data.works[i].dimensions[n].length =
+          Number(data.works[i].dimensions[n].length) || 0
+        data.works[i].dimensions[n].width =
+          Number(data.works[i].dimensions[n].width) || 0
+        data.works[i].dimensions[n].quanty =
+          Number(data.works[i].dimensions[n].quanty) || 0
+        return d
+      })
+
+      const filterdDims = w.dimensions.filter((d) => d != null)
+
+      data.works[i].dimensions = filterdDims
+      console.log("REFORMED DATA", data)
+      return data
+    })
+  }
 
   return (
     <Formik
@@ -74,7 +120,8 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
           infos: "",
           works: [
             {
-              typeOfwork: "Lake Duz Panel",
+              typeOfwork: "",
+              product: {},
               side: "TY",
               gloss: "mat 25",
               color: "RAL",
@@ -82,37 +129,33 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
               unit: "m2",
               dimensions: [
                 {
-                  length: 0,
-                  width: 0,
-                  quanty: 0,
+                  length: "",
+                  width: "",
+                  quanty: "",
                   desc: "",
                 },
               ],
-              price: { val: 0, cur: "TL" },
-              code: "",
+              price: { val: "", cur: "TL" },
               noList: false,
+              machineData: false,
             },
           ],
         }
       }
       onSubmit={async (values, { setSubmitting, resetForm }) => {
         if (!editMode) {
-          const res = await axios.post("/offers/", values);
-          console.log("response from post values :: ", res);
-          setSubmitting(false);
-          resetForm();
-          navigate(`/offer/${res.data.ofr._id}`);
+          reformData(values)
+          const res = await axios.post("/offers/", values)
+          setSubmitting(false)
+          resetForm()
+          navigate(`/offer/${res.data.ofr._id}`)
         }
         if (editMode) {
-          alert(JSON.stringify("YOU ARE IN EDIT MODE"));
-          const res = await axios.patch(
-            `/offers/${offer._id}`,
-            values
-          );
-          console.log("response from post values :: ", res);
-          setSubmitting(false);
-          navigate("/offer");
-        } else return;
+          reformData(values)
+          await axios.patch(`/offers/${offer._id}`, values)
+          setSubmitting(false)
+          navigate("/offer")
+        } else return
       }}
     >
       {({ values, setFieldValue }) => {
@@ -164,13 +207,13 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
                 <div className="bg-blue-200 grid grid-cols-4 gap-1 pt-1">
                   <FormikControl
                     control="input"
-                    type="number"
+                    type="text"
                     name="discount"
                     label="Indirim"
                   />
                   <FormikControl
                     control="input"
-                    type="number"
+                    type="text"
                     name="kdv"
                     label="kdv"
                   />
@@ -186,60 +229,63 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
                           i % 2 === 0 ? "bg-green-200" : "bg-red-200"
                         } px-4 py-8 rounded-lg w-full my-4`}
                       >
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="grid grid-cols-3 gap-2">
-                            <div className="col-span-2">
-                              <FormikControl
-                                control="input"
-                                type="text"
-                                name={`works.${i}.typeOfwork`}
-                                label="Is Tipi"
-                              />
-                            </div>
-                            <FormikControl
-                              control="select"
-                              options={sideTypes}
-                              type="text"
-                              name={`works.${i}.side`}
-                              label="Yüz"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 gap-2">
-                            <FormikControl
-                              control="select"
-                              options={glossTipleri}
-                              type="text"
-                              name={`works.${i}.gloss`}
-                              label="Gloss"
-                            />
+                        <div className="grid grid-cols-3 gap-2 col-span-3">
+                          <FormikControl
+                            control="input"
+                            type="text"
+                            name={`works.${i}.typeOfwork`}
+                            label="Is Tipi"
+                          />
+                          <FormikControl
+                            control="input"
+                            type="text"
+                            name={`works.${i}.color`}
+                            label="Renk"
+                          />
+                          <div className="grid grid-cols-2 gap-2">
                             <FormikControl
                               control="input"
                               type="text"
-                              name={`works.${i}.color`}
-                              label="Renk"
+                              name={`works.${i}.thickness`}
+                              label="Kalinlik"
                             />
-                            <div className="grid grid-cols-2 gap-2">
-                              <FormikControl
-                                control="input"
-                                type="text"
-                                name={`works.${i}.thickness`}
-                                label="Kalinlik"
-                              />
-                              <FormikControl
-                                control="select"
-                                options={unitTypes}
-                                type="text"
-                                name={`works.${i}.unit`}
-                                label="Birim"
-                              />
-                            </div>
+                            <FormikControl
+                              control="select"
+                              options={unitTypes}
+                              type="text"
+                              name={`works.${i}.unit`}
+                              label="Birim"
+                            />
                           </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-1">
+                          <FormikControl
+                            control="reactSelect"
+                            options={setProductOptions(products)}
+                            type="text"
+                            name={`works.${i}.product`}
+                            label="Model"
+                          />
+                          <FormikControl
+                            control="select"
+                            options={glossTipleri}
+                            type="text"
+                            name={`works.${i}.gloss`}
+                            label="Gloss"
+                          />
+                          <FormikControl
+                            control="select"
+                            options={sideTypes}
+                            type="text"
+                            name={`works.${i}.side`}
+                            label="Yüz"
+                          />
                         </div>
                         <Dimensions works={w} name={`works.${i}.dimensions`} />
                         <div className="grid grid-cols-4 gap-1">
                           <FormikControl
                             control="input"
-                            type="number"
+                            type="text"
                             name={`works.${i}.price.val`}
                             label="Fiyat"
                           />
@@ -251,15 +297,14 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
                             label="Para Birimi"
                           />
                           <FormikControl
-                            control="input"
-                            type="text"
-                            name={`works.${i}.code`}
-                            label="Kod"
-                          />
-                          <FormikControl
                             control="checkbox"
                             name={`works.${i}.noList`}
                             label="No List"
+                          />
+                          <FormikControl
+                            control="checkbox"
+                            name={`works.${i}.machineData`}
+                            label="Makina Datasına Ekle"
                           />
                         </div>
                       </div>
@@ -271,22 +316,23 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
                             onClick={() =>
                               push({
                                 typeOfwork: "",
+                                product: {},
                                 side: "TY",
                                 gloss: "mat 15",
                                 color: "",
-                                thickness: 0,
+                                thickness: "",
                                 unit: "m2",
                                 dimensions: [
                                   {
-                                    length: 0,
-                                    width: 0,
-                                    quanty: 0,
+                                    length: "",
+                                    width: "",
+                                    quanty: "",
                                     desc: "",
                                   },
                                 ],
-                                code: "",
                                 noList: false,
-                                price: { val: 0, cur: "TL" },
+                                machineData: false,
+                                price: { val: "", cur: "TL" },
                               })
                             }
                           >
@@ -302,7 +348,7 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
                                     "Silme Islemini Onayliyormusun"
                                   )
                                 )
-                                  remove(i);
+                                  remove(i)
                               }}
                             >
                               X
@@ -315,7 +361,7 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
                           className="btn-cancel"
                           onClick={() => {
                             if (window.confirm("Silme Islemini Onayliyormusun"))
-                              remove(i);
+                              remove(i)
                           }}
                         >
                           X
@@ -388,14 +434,15 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
 
               <div className="w-100 bg-slate-400 h-100 p-8 my-4 ">
                 <pre>{JSON.stringify(values, null, 4)}</pre>
+                <pre>{JSON.stringify(products, null, 4)}</pre>
               </div>
             </div>
           </Form>
-        );
+        )
       }}
     </Formik>
-  );
-};
+  )
+}
 
 const Dimensions = ({ works, name }) => {
   return (
@@ -409,13 +456,13 @@ const Dimensions = ({ works, name }) => {
                   <div className="grid grid-cols-2 gap-2">
                     <FormikControl
                       control="input"
-                      type="number"
+                      type="text"
                       name={`${name}.${i}.length`}
                       label="Boy"
                     />
                     <FormikControl
                       control="input"
-                      type="number"
+                      type="text"
                       name={`${name}.${i}.width`}
                       label="En"
                     />
@@ -423,7 +470,7 @@ const Dimensions = ({ works, name }) => {
                   <div className="grid grid-cols-4 gap-2">
                     <FormikControl
                       control="input"
-                      type="number"
+                      type="text"
                       name={`${name}.${i}.quanty`}
                       label="Adet"
                     />
@@ -442,7 +489,7 @@ const Dimensions = ({ works, name }) => {
                           tabIndex="-1"
                           onClick={() => {
                             if (window.confirm("Silme Islemini Onayliyormusun"))
-                              remove(i);
+                              remove(i)
                           }}
                         >
                           <svg
@@ -484,7 +531,7 @@ const Dimensions = ({ works, name }) => {
                                     "Silme Islemini Onayliyormusun"
                                   )
                                 )
-                                  remove(i);
+                                  remove(i)
                               }}
                             >
                               <svg
@@ -511,7 +558,7 @@ const Dimensions = ({ works, name }) => {
         )}
       </FieldArray>
     </div>
-  );
-};
+  )
+}
 
-export default OfferForm;
+export default OfferForm

@@ -3,6 +3,7 @@ import Input from "./Input";
 import Checkbox from "./Checkbox";
 import Select from "./Select"
 import TextArea from "./TextArea";
+import ReactSelect from "./ReactSelect";
 
 function FormikControl(props) {
   const { control, ...rest } = props;
@@ -15,6 +16,8 @@ function FormikControl(props) {
       return <Select {...rest} />;
     case 'textarea':
       return <TextArea {...rest} />
+    case 'reactSelect':
+      return <ReactSelect {...rest} />
 
     default:
       return null;

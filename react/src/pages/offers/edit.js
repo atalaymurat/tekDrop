@@ -12,7 +12,6 @@ function Edit() {
       const { data } = await axios.get(`/offers/${id}`)
       setOffer(data)
     }
-    console.log("Use Effect Work")
     getData()
   }, [id])
 

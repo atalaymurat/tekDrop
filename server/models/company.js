@@ -20,6 +20,6 @@ const companySchema = new Schema({
 )
 offerSchema.set('timestamps', true)
 
-const company = mongoose.model('company', offerSchema)
+const company = mongoose.model('company', companySchema)
 
 module.exports = Company

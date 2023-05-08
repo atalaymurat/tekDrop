@@ -15,7 +15,7 @@ function PackageList() {
   }, [id])
   if (offer) {
     return (
-      <div className="max-w-4xl mx-auto text-sm">
+      <div className="max-w-4xl mx-auto text-sm lining-nums">
         <h1 className="mx-auto text-center font-semibold text-base">
           Sevkiyat Listesi
         </h1>
@@ -65,11 +65,12 @@ const List = ({ offer }) => {
     <div className="grid grid-cols-3 gap-1 my-4 break-before-auto border border-green-700 p-2">
       {works.map((w, i) => {
         const fData = [
-          { title: "Sipariş", en: "Order", data: w.typeOfwork },
+          { title: "Sipariş", en: "Order", data: w.product ? w.product.name + " " + w.typeOfwork : w.typeOfwork  },
           { title: "Renk", en: "Color", data: w.color },
           { title: "Parlaklık", en: "Gloss", data: w.gloss },
           { title: "Yüz", en: "Side", data: w.side },
           { title: "Toplam Adet", en: "Total Pieces", data: w.totalQuanty },
+          { title: "Kod", en: "Code", data: w.code },
         ]
         return (
           <React.Fragment key={i}>
@@ -105,12 +106,14 @@ const List = ({ offer }) => {
 const Dims = ({ dims, thickness }) => {
   const renderBox = (quanty) => {
     let result = []
-    for (let i = 0; i < (quanty / 2 ); i++) {
+    let qnt =
+      quanty <= 100 ? quanty / 2 : quanty = 1
+    for (let i = 0; i < qnt; i++) {
       result.push(
+        <React.Fragment key={i}>
         <svg
-          key={i}
           aria-hidden="true"
-          className="w-9 h-9 border"
+          className="w-10 h-10 border"
           fill="none"
           stroke="currentColor"
           strokeWidth={1}
@@ -123,6 +126,7 @@ const Dims = ({ dims, thickness }) => {
             strokeLinejoin="round"
           />
         </svg>
+        </React.Fragment>
       )
     }
     return <>{result}</>
@@ -152,9 +156,7 @@ const Dims = ({ dims, thickness }) => {
                 </div>
                 <div className="border col-span-2">{d.quanty}</div>
               </div>
-              <div className="border flex flex-wrap">
-                {renderBox(d.quanty)}
-              </div>
+              <div className="border flex flex-wrap">{renderBox(d.quanty)}</div>
             </React.Fragment>
           )
         })}

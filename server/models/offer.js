@@ -1,5 +1,5 @@
-const mongoose = require("mongoose");
-const Schema = mongoose.Schema;
+const mongoose = require("mongoose")
+const Schema = mongoose.Schema
 
 const offerSchema = new Schema({
   offerType: String,
@@ -27,23 +27,25 @@ const offerSchema = new Schema({
   works: [
     {
       typeOfwork: String,
+      product: { type: Schema.Types.ObjectId, ref: "product" },
       gloss: String,
       color: String,
       side: String,
       thickness: Number,
       unit: String,
       totalUnit: Number,
-      totalQuanty: Number, 
-      price: { val: Number, cur: String  },
+      totalQuanty: Number,
+      price: { val: Number, cur: String },
       workTotalPrice: { val: Number, cur: String },
-      code: String,
-      noList: Boolean, 
+      code: { type: String },
+      noList: Boolean,
+      machineData: Boolean,
       dimensions: [
         {
           length: Number,
           width: Number,
           m2: Number,
-          tm2:Number,
+          tm2: Number,
           tLength: Number,
           quanty: Number,
           desc: String,
@@ -59,9 +61,21 @@ const offerSchema = new Schema({
   warranty: String,
   discount: Number,
   kdv: Number,
-});
-offerSchema.set("timestamps", true);
+})
+offerSchema.set("timestamps", true)
+offerSchema.pre("save", function (next) {
+  var offer = this
+  var ofType = this.offerType
+  const date = new Date()
+  const year = date.getFullYear().toString().substr(-2)
+  const day = date.getDate().toString().padStart(2, "0")
+  const mounth = (date.getMonth() + 1).toString().padStart(2, "0")
+  const custmr = offer.customer.slice(0, 3).toLocaleUpperCase("en-US") || ""
 
-const Offer = mongoose.model("offer", offerSchema);
+  this.offerCode = `${year}${mounth}${day}${ofType}${custmr}`
+  next()
+})
 
-module.exports = Offer;
+const Offer = mongoose.model("offer", offerSchema)
+
+module.exports = Offer

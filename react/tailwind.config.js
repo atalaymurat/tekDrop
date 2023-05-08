@@ -4,7 +4,12 @@ module.exports = {
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+        backgroundImage: {
+        'forest': "url('https://picsum.photos/1198/1219.webp?')",
+      }
+
+    },
   },
   plugins: [],
 }
