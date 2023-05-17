@@ -12,13 +12,13 @@ const Index = () => {
   useEffect(() => {
     const getData = async () => {
       try {
-        setMessage( {...message,  error: false, loading: true } )
+        setMessage( { products: false,  error: false, loading: true } )
         const { data } = await axios.get(`/products`)
         setProducts(data)
-        setMessage( {...message,  error: false, loading: false, products: true } )
+        setMessage( {error: false, loading: false, products: true } )
       } catch (err) {
         console.log(err)
-        setMessage({ ...message, error: true, loading: false })
+        setMessage({ products: false, error: true, loading: false })
       }
     }
     getData()

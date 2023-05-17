@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, useLocation, Link } from "react-router-dom"
 import axios from "axios"
 import { localeDate } from "../../lib/helpers"
 
 function Show() {
   const [offer, setOffer] = useState(null)
   const { id } = useParams()
+  const { state } = useLocation()
 
   useEffect(() => {
     const getData = async () => {
       const { data } = await axios.get(`/offers/${id}`)
       setOffer(data)
     }
-    console.log("Use Effect Work")
+    console.log("SHOW:JS USE LOCATION", state)
     getData()
   }, [id])
 
@@ -27,6 +28,11 @@ function Show() {
   if (offer)
     return (
       <div className="max-w-4xl mx-auto flex flex-col lining-nums">
+        <div className="print:hidden grid grid-cols-6 gap-1 items-center justify-center py-4">
+          <Link to="/offer" state={state}>
+          <button className="btn-purple">Back</button>
+          </Link>
+        </div>
         <h1 className="mx-auto font-extrabold text-xl">
           <div>{offerHeading(offer.offerType).tr}</div>
           <div className="text-sm font-normal">
@@ -192,7 +198,9 @@ const Work = ({ works }) => {
                       <div>Renk</div>
                       <div className="text-xs font-light">Color</div>
                     </div>
-                    <div className="flex items-center col-span-3 ">{w.color}</div>
+                    <div className="flex items-center col-span-3 ">
+                      {w.color}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-1 col-span-2">

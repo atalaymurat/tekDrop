@@ -2,11 +2,11 @@ import React from "react"
 import { Link } from "react-router-dom"
 import Csv from "./Csv"
 
-const IndexIcons = ({ of }) => {
+const IndexIcons = ({ of, state }) => {
   return (
     <React.Fragment>
-      <div className="grid grid-cols-4 gap-1 justify-center items-center border w-max">
-        <Link to={`/offer/${of._id}`} className="m-auto">
+      <div className="grid grid-cols-4 gap-1 justify-center items-center border-b w-max">
+        <Link to={`/offer/${of._id}`} className="m-auto" state={state}>
           <button className="btn-purple">
             <svg
               xmlns="http://www.w3.org/2000/svg"

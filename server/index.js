@@ -39,6 +39,7 @@ app.use(cors())
 app.use('/', require('./routes'))
 app.use('/offers', require('./routes/offers'))
 app.use('/products', require('./routes/products'))
+app.use('/search', require('./routes/search'))
 
 // 404 catch-all handler (middleware)
 app.use((req, res, next) => {

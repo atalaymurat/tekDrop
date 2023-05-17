@@ -18,7 +18,7 @@ module.exports = {
   },
   index: async (req, res, next) => {
     try {
-      const offers = await Offer.find()
+      const offers = await Offer.find().sort({ createdAt: -1})
       res.status(200).json(offers)
     } catch (err) {
       res.status(400).json({ success: false })
