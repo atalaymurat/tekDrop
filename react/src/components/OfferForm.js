@@ -57,6 +57,13 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
     { label: "adet", value: "adet" },
     { label: "takım", value: "takım" },
   ]
+  const statusType = [
+    { label: "sipariş", value: "siparis" },
+    { label: "beklemede", value: "beklemede" },
+    { label: "imalat", value: "imalat" },
+    { label: "bitti", value: "bitti" },
+    { label: "diğer", value: "diger" },
+  ]
 
   const handleDelete = async () => {
     if (window.confirm("Silme Islemini Onayliyormusun")) {
@@ -75,7 +82,6 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
       if (w.product) {
         data.works[i].product = w.product.value || w.product._id
       }
-      
 
       data.works[i].thickness = Number(data.works[i].thickness) || 0
       data.works[i].price.val = Number(data.works[i].price.val) || 0
@@ -138,6 +144,9 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
               price: { val: "", cur: "TL" },
               noList: false,
               machineData: false,
+              status: "siparis",
+              startDate: null,
+              finishDate: null,
             },
           ],
         }
@@ -419,22 +428,45 @@ const OfferForm = ({ offer, formHead, setFormHead, ...props }) => {
               </div>
               {/* SATIS KONDİSYONLARI BLOK   */}
 
-              <button type="submit" className="btn-submit mt-2 mb-2">
+              {/* IMALAT KONDİSYONLARI BLOK   */}
+              <div className="bg-yellow-400 px-4 py-8 mt-2 rounded-lg border w-full grid drid-cols-3 gap-1">
+                <h1 className="col-span-3 text-center font-semibold">
+                  İmalat Bilgileri
+                </h1>
+                <FormikControl
+                  control="select"
+                  options={statusType}
+                  name={"status"}
+                  label="Status"
+                />
+                <FormikControl
+                  control="date"
+                  name={"startDate"}
+                  label="imalat başlangıç"
+                />
+                <FormikControl
+                  control="date"
+                  name={"finishDate"}
+                  label="imalat bitiş"
+                />
+              </div>
+              {/* IMALAT KONDİSYONLARI BLOK   */}
+
+              <button type="submit" className="btn-submit mt-4 mb-8">
                 Kaydet
               </button>
               {offer && (
                 <button
                   type="button"
                   onClick={handleDelete}
-                  className="btn-cancel mt-2 mb-2"
+                  className="btn-cancel mt-4 mb-8"
                 >
                   Sil
                 </button>
               )}
 
-              <div className="w-100 bg-slate-400 h-100 p-8 my-4 ">
+              <div className="w-100 bg-slate-400 h-100 p-8 my-4">
                 <pre>{JSON.stringify(values, null, 4)}</pre>
-                <pre>{JSON.stringify(products, null, 4)}</pre>
               </div>
             </div>
           </Form>

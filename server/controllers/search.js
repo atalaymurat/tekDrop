@@ -10,6 +10,8 @@ module.exports = {
             $or: [
               { customer: { $regex: search, $options: "i" } },
               { person: { $regex: search, $options: "i" } },
+              { status: { $regex: search, $options: "i" } },
+              { adress: { $regex: search, $options: "i" } },
             ],
           },
         },

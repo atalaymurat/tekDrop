@@ -10,9 +10,10 @@ module.exports = {
       const offer = await Offer.findById(req.params.id).populate({
         path: "works.product",
       })
+      console.log("CTRL OFFER SHOW", offer)
       res.status(200).json(offer)
     } catch (err) {
-      console.log("ERROR------------------------------")
+      console.log("ERROR------------------------------", err)
       res.status(404).send({ error: `there is an error occured` })
     }
   },

@@ -1,9 +1,10 @@
 import axios from "axios"
 import React, { useEffect, useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
-import moment from "moment"
+import { format } from "date-fns"
 import IndexIcons from "../../components/IndexIcons"
 import Search from "../../components/offers/Search"
+import { differenceInDays } from "date-fns"
 
 function Index() {
   const [offers, setOffers] = useState([])
@@ -44,7 +45,7 @@ function Index() {
         Siparisler Index
       </div>
       <div>
-        <Link to="/offer/new">
+        <Link to="/offer/new" tabIndex={-1} className="focus:outline-none">
           <button className="btn-green">
             <svg
               className="w-6 h-6"
@@ -63,7 +64,7 @@ function Index() {
             </svg>
           </button>
         </Link>
-        <Link to="/">
+        <Link to="/" tabIndex={-1} className="focus:outline-none">
           <button className="btn-submit">
             <svg
               className="h-6 w-6"
@@ -92,17 +93,34 @@ function Index() {
       )}
       <div className="my-4">
         {offers.length > 0 &&
-          offers
-          .slice(0,15)
-          .map((of, i) => (
-            <div key={`of-${i}`} className="grid grid-cols-12">
+          offers.slice(0, 50).map((of, i) => (
+            <div
+              key={`of-${i}`}
+              className={`grid grid-cols-12 font-medium uppercase 
+              ${of.status && of.status === "imalat" ? "text-green-700" : null}
+              ${of.status && of.status === "bitti" ? "text-stone-600" : null}
+              ${of.status && of.status === "siparis" ? "text-blue-500" : null}
+              ${
+                of.status && of.status === "beklemede" ? "text-amber-500" : null
+              }
+              `}
+            >
               <div className="px-2 py-2 border-b">{i + 1}</div>
               <div className="px-2 py-2 border-b col-span-2">
-                {moment(of.createdAt).format("DD-MM-YY - HH:mm")}
+                {format(new Date(of.createdAt), "dd/MM/yyyy")}
                 <br />
                 {of.offerCode}
               </div>
-              <div className="px-2 py-2 border-b col-span-5">{of.customer}</div>
+              <div className="px-2 py-2 border-b col-span-5">
+                <div>{of.customer}</div>
+                <div className="text-xs font-light">
+                  {of.startDate &&
+                    differenceInDays(
+                      of.finishDate ? new Date(of.finishDate) : new Date(),
+                      new Date(of.startDate)
+                    ) + " " + "gün"}
+                </div>
+              </div>
               <IndexIcons of={of} state={sterm} />
             </div>
           ))}

@@ -42,7 +42,7 @@ const Search = ({ setOffers, setSterm }) => {
   }
 
   return (
-    <div className="my-2 py-4 px-8 border border-green-700">
+    <div className="my-2 py-4 px-2 border-2 border-purple-500 rounded-lg shadow-sm bg-gradient-to-r from-purple-500 to-green-700">
       <Formik
         initialValues={{ search: "" }}
         onSubmit={async (values, { resetForm }) => {
@@ -60,13 +60,14 @@ const Search = ({ setOffers, setSterm }) => {
                 control="input"
                 type="text"
                 name="search"
-                label="Ara..."
+                label="Arama"
                 autoFocus
+                
               />
               <div className="my-1">
                 {suggestList.map((s, i) => (
                   <div
-                    className="py-1 focus:outline-none focus:font-bold"
+                    className="py-1 focus:outline-none focus:font-bold text-white"
                     onKeyUp={(e) => handleTabSelect(formikProps, e)}
                     tabIndex="0"
                     key={i}

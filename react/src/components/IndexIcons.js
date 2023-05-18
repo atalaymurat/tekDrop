@@ -6,7 +6,7 @@ const IndexIcons = ({ of, state }) => {
   return (
     <React.Fragment>
       <div className="grid grid-cols-4 gap-1 justify-center items-center border-b w-max">
-        <Link to={`/offer/${of._id}`} className="m-auto" state={state}>
+        <Link to={`/offer/${of._id}`} className="m-auto focus:outline-none" tabIndex={-1} state={state}>
           <button className="btn-purple">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -24,7 +24,7 @@ const IndexIcons = ({ of, state }) => {
             </svg>
           </button>
         </Link>
-        <Link to={`/offer/edit/${of._id}`} className="mx-auto">
+        <Link to={`/offer/edit/${of._id}`} className="mx-auto focus:outline-none" tabIndex={-1} >
           <button className="btn-purple">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -42,7 +42,7 @@ const IndexIcons = ({ of, state }) => {
             </svg>
           </button>
         </Link>
-        <Link to={`/package/${of._id}`} className="mx-auto">
+        <Link to={`/package/${of._id}`} className="mx-auto focus:outline-none" tabIndex={-1}>
           <button className="btn-purple">
             <svg
               xmlns="http://www.w3.org/2000/svg"

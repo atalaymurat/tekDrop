@@ -61,6 +61,9 @@ const offerSchema = new Schema({
   warranty: String,
   discount: Number,
   kdv: Number,
+  status: String,
+  startDate: Date,
+  finishDate: Date,
 })
 offerSchema.set("timestamps", true)
 offerSchema.pre("save", function (next) {
