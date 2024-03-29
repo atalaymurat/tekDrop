@@ -1,5 +1,6 @@
 const mongoose = require("mongoose")
 const Schema = mongoose.Schema
+const Order = require("./item.js")
 
 const offerSchema = new Schema({
   offerType: String,
@@ -8,11 +9,16 @@ const offerSchema = new Schema({
   offerValidity: Date,
   itemNo: String,
   customer: String,
+  company: { type:  Schema.Types.ObjectId, ref: "Company" },
+  normalizedCustomer: String,
   person: String,
+  normalizedPerson: String,
   phone: String,
   email: String,
   adress: String,
+  normalizedAdress: String,
   showTerms: Boolean,
+  noTotals: Boolean,
   offerTotalPrice: { EUR: Number, TL: Number, USD: Number },
   offerDiscountPrice: { EUR: Number, TL: Number, USD: Number },
   offerNetTotalPrice: { EUR: Number, TL: Number, USD: Number },
@@ -27,13 +33,15 @@ const offerSchema = new Schema({
   works: [
     {
       typeOfwork: String,
-      product: { type: Schema.Types.ObjectId, ref: "product" },
+      position: Number,
+      product: { type:  Schema.Types.ObjectId, ref: "Product" },
       gloss: String,
       color: String,
       side: String,
       thickness: Number,
       unit: String,
       totalUnit: Number,
+      totalM_M2: Number,   // m2 olmayan işler için kullanılacak
       totalQuanty: Number,
       price: { val: Number, cur: String },
       workTotalPrice: { val: Number, cur: String },
@@ -49,14 +57,15 @@ const offerSchema = new Schema({
           tLength: Number,
           quanty: Number,
           desc: String,
+          control: Boolean,
         },
       ],
     },
   ],
+  // order work fieldin başka modele alınmış durumu
 
   package: String,
   deliveryPlace: String,
-  deliveryDate: String,
   payment: String,
   warranty: String,
   discount: Number,
@@ -65,20 +74,15 @@ const offerSchema = new Schema({
   startDate: Date,
   finishDate: Date,
 })
+
+
+
+
 offerSchema.set("timestamps", true)
-offerSchema.pre("save", function (next) {
-  var offer = this
-  var ofType = this.offerType
-  const date = new Date()
-  const year = date.getFullYear().toString().substr(-2)
-  const day = date.getDate().toString().padStart(2, "0")
-  const mounth = (date.getMonth() + 1).toString().padStart(2, "0")
-  const custmr = offer.customer.slice(0, 3).toLocaleUpperCase("en-US") || ""
 
-  this.offerCode = `${year}${mounth}${day}${ofType}${custmr}`
-  next()
-})
+// write a function automaticly save normalized data
 
-const Offer = mongoose.model("offer", offerSchema)
+
+const Offer = mongoose.model("Offer", offerSchema)
 
 module.exports = Offer

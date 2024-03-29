@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react"
 import { useParams, useLocation, Link } from "react-router-dom"
 import axios from "axios"
 import { localeDate } from "../../lib/helpers"
+import EditButton from "../../components/buttons/EditButton"
+import BackButton from "../../components/buttons/BackButton"
+import { format } from "date-fns"
+import ProductionBlock from "../../components/offers/ProductionBlock"
+import PDFShow from "../../components/offers/PDFShow"
+import { BlobProvider } from "@react-pdf/renderer"
 
 function Show() {
   const [offer, setOffer] = useState(null)
@@ -13,7 +19,6 @@ function Show() {
       const { data } = await axios.get(`/offers/${id}`)
       setOffer(data)
     }
-    console.log("SHOW:JS USE LOCATION", state)
     getData()
   }, [id])
 
@@ -21,6 +26,7 @@ function Show() {
     (tp === "SP" && { tr: "Sipariş Formu", en: "Order Confirmation" }) ||
     (tp === "SZ" && { tr: "Satış Sözleşmesi", en: "Sales Contract" }) ||
     (tp === "TK" && { tr: "Fiyat Teklifi", en: "Sales Offer" }) ||
+    (tp === "SV" && { tr: "Sevkiyat Formu", en: "Delivery Form" }) ||
     (tp === "PF" && { tr: "Proforma Fatura", en: "Proforma Invoice" })
 
   if (!offer) return <div>Loading..</div>
@@ -28,10 +34,37 @@ function Show() {
   if (offer)
     return (
       <div className="max-w-4xl mx-auto flex flex-col lining-nums">
-        <div className="print:hidden grid grid-cols-6 gap-1 items-center justify-center py-4">
+        <div className="print:hidden grid grid-flow-col auto-cols-min gap-1 grid-rows-1 items-center py-4">
           <Link to="/offer" state={state}>
-          <button className="btn-purple">Back</button>
+            <BackButton />
           </Link>
+          <Link to={`/offer/edit/${offer._id}`} state={state}>
+            <EditButton />
+          </Link>
+
+          <BlobProvider document={<PDFShow offer={offer} />}>
+            {({ blob, url, loading, error }) =>
+              loading ? (
+                "Loading PDF..."
+              ) : error ? (
+                "Error occurred"
+              ) : (
+                <a
+                  href={url}
+                  className="text-sm font-medium border border-purple-600 rounded-md p-2 h-full flex items-center justify-center"
+                  download={encodeURIComponent(
+                    `${offer.offerCode.slice(
+                      2
+                    )}_${offer.company.normalizedTitle.replace(/\s/g, "")}`
+                  )
+                    .slice(0, 14)
+                    .toUpperCase()}
+                >
+                  PDF
+                </a>
+              )
+            }
+          </BlobProvider>
         </div>
         <h1 className="mx-auto font-extrabold text-xl">
           <div>{offerHeading(offer.offerType).tr}</div>
@@ -48,8 +81,9 @@ function Show() {
         <div className="ml-auto text-xs">{offer.offerCode}</div>
         <Customer offer={offer} />
         <PriceTable works={offer.works} offer={offer} />
-        <Work works={offer.works} />
         <InfoTable offer={offer} />
+        <Work works={offer.works} />
+        <ProductionBlock offerId={offer._id} />
 
         <pre className="p-4 my-4 hidden">{JSON.stringify(offer, null, 2)}</pre>
       </div>
@@ -67,11 +101,13 @@ const InfoTable = ({ offer }) => {
     packaging,
     warranty,
     infos,
+    startDate,
+    finishDate,
   } = offer
   const titles = [
     {
       tr: "Teslim Yeri",
-      en: "Sales Conditions",
+      en: "Delivery of Goods",
       desc: salesConditions,
     },
     {
@@ -80,8 +116,8 @@ const InfoTable = ({ offer }) => {
       desc: paymentTerms,
     },
     {
-      tr: "Teslim Tarihi",
-      en: "Delivery Date",
+      tr: "Teslim Şartları",
+      en: "Terms of Delivery",
       desc: (
         <div>
           Sipariş avansının alınmasından itibaren.
@@ -89,11 +125,27 @@ const InfoTable = ({ offer }) => {
           {deliveryDate}
         </div>
       ),
+      details: [
+        {
+          tr: "İmalat Tarihi",
+          en: "Manufacturing Date",
+          desc: startDate ? (
+            <div>{format(new Date(startDate), "dd/MM/yyyy")}</div>
+          ) : null,
+        },
+        {
+          tr: "Sevk Tarihi",
+          en: "Delivery Date",
+          desc: finishDate ? (
+            <div>{format(new Date(finishDate), "dd/MM/yyyy")}</div>
+          ) : null,
+        },
+      ],
     },
-    { tr: "Paketleme", en: "Package", desc: packaging },
+    { tr: "Paketleme", en: "Packaging", desc: packaging },
     {
       tr: "Garanti Şartları",
-      en: "Warranty",
+      en: "Warranty Terms",
       desc: (
         <div className="text-sm">
           <p className="text-xs justify">
@@ -115,15 +167,16 @@ const InfoTable = ({ offer }) => {
       en: "Info",
       desc: (
         <div className="font-normal">
+          Özellikle belirtilmedikçe, fiyatlara KDV dahil değildir.
+          <br />
+          Fason boya üretimlerde boyanan toplam yüzeyin m2'si hesaplanır.
+          <br />
           Katalog renkleri, Renk kodları ile biten mamül arasında ton
           farklılıkları olabilir.
           <br />
-          Özellikle belirtilmedikçe, fiyatlara KDV dahil değildir.
-          <br />
           Ek sipariş veya hasar görmüş parçaların temini en az (10) iş günüdür.
           <br />
-          Sipariş formunda belirtilen ölçüler, kesin imalat ölçüleri olarak
-          kabul edilecektir. sipariş formu ölçülerini kontrol ediniz.
+          Teklif geçerlilik süresi (10) gündür.
           <br />
           <div className="w-full h-full">{infos}</div>
         </div>
@@ -133,18 +186,49 @@ const InfoTable = ({ offer }) => {
   if (showTerms) {
     return (
       <div className="grid grid-cols-6 gap-1 text-sm my-2">
-        {titles.map((t, i) => (
-          <React.Fragment key={i}>
-            <div className="border-b font-semibold pl-1 break-inside-avoid">
-              <div>{t.tr}</div>
-              <div className="font-light text-sm">{t.en}</div>
-            </div>
-            <div className="col-span-5 border-b">
-              <div>{t.desc}</div>
-              <div className="font-light text-sm"></div>
-            </div>
-          </React.Fragment>
-        ))}
+        {titles
+          .filter((t) => t.desc)
+          .map((t, i) => {
+            if (t.tr === "Teslim Şartları") {
+              // Teslim Süresi ile ilgili detaylı bilgi
+              return (
+                <React.Fragment key={i}>
+                  <div className="col-span-6  grid grid-cols-6 gap-1">
+                    <div className="border-b pl-1">
+                      <div className="font-semibold">{t.tr}</div>
+                      <div className="font-light text-xs">{t.en}</div>
+                    </div>
+                    <div className="col-span-2 text-xs border-b">{t.desc}</div>
+                    <div className="grid grid-cols-2 gap-1 col-span-3">
+                      {t.details
+                        .filter((d) => d.desc)
+                        .map((d, i) => (
+                          <div className="col-span-1 border-b" key={i}>
+                            <div className="font-semibold">{d.tr}</div>
+                            <div className="font-light text-xs">{d.en}</div>
+                            <div>{d.desc}</div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </React.Fragment>
+              )
+            } else {
+              // Diğerleri                                                             // Diğerleri
+              return (
+                <React.Fragment key={i}>
+                  <div className="border-b font-semibold pl-1">
+                    <div>{t.tr}</div>
+                    <div className="font-light text-xs">{t.en}</div>
+                  </div>
+                  <div className="col-span-5 border-b text-xs">
+                    <div>{t.desc}</div>
+                    <div className="font-light text-xs"></div>
+                  </div>
+                </React.Fragment>
+              )
+            }
+          })}
       </div>
     )
   } else {
@@ -157,14 +241,14 @@ const Work = ({ works }) => {
     return <div>Loading...</div>
   }
   return (
-    <div>
+    <div className="">
       {works
         .sort((a, b) => a.unit < b.unit)
         .map((w, i) => {
           if (!w.noList) {
             return (
-              <div className="flex flex-col my-2 text-sm" key={i}>
-                <div className="text-center font-semibold py-2 break-inside-avoid break-before-auto">
+              <div className="flex flex-col my-4 text-sm" key={i}>
+                <div className="text-center font-semibold py-2">
                   <h1>Sipariş Detayı</h1>
                   <div className="text-xs font-normal">Order Detail</div>
                 </div>
@@ -185,11 +269,21 @@ const Work = ({ works }) => {
                       <div className="text-xs font-light">Order</div>
                     </div>
 
-                    <div className="flex items-center col-span-3 pl-2 capitalize">
+                    <div className="flex items-center col-span-1 pl-2 capitalize">
                       {w.product
                         ? w.product.name + " " + w.typeOfwork
-                        : w.typeOfwork}{" "}
-                      {w.color} {w.gloss}
+                        : w.typeOfwork}
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 col-span-2">
+                      <div className="font-semibold text-right pr-4">
+                        <div>Yüz</div>
+                        <div className="text-xs font-light">Side</div>
+                      </div>
+                      <div className="text-left flex items-center pl-2">
+                        {w.side === "CY" && "Çift Yüz"}
+                        {w.side === "TY" && "Tek Yüz"}
+                        {w.side === "AA" && "Tek Yüz Arka Yüz Astar"}
+                      </div>
                     </div>
                   </div>
 
@@ -290,7 +384,7 @@ const Dimensions = ({ dimensions, unit, work }) => {
             ${t.tr === "Toplam" ? "text-center" : null} 
             ${t.tr === unit ? "capitalize text-center" : null} 
             ${
-              t.tr === "En" ? " col-span-2" : null
+              t.tr === "En" ? " col-span-1" : null
             } text-white font-medium px-2 text-sm`}
           >
             <div>{t.tr}</div>
@@ -321,7 +415,6 @@ const Dimensions = ({ dimensions, unit, work }) => {
 
             ${i === 0 ? "text-xs font-light " : null} 
             ${i === 4 ? "col-span-3 " : null} 
-            ${i === 2 ? "col-span-2 " : null} 
             ${i === 5 || i === 6 ? "text-center" : null} 
             ${i === 1 ? " col-span-2" : null}
              border-b capitalize px-2`}
@@ -338,11 +431,28 @@ const Dimensions = ({ dimensions, unit, work }) => {
 }
 
 const Customer = ({ offer }) => {
+  const company = offer.company ? offer.company : null
   const colsData = (offer) => [
     { title: "Yetkili", en: "Person", text: offer.person },
-    { title: "Eposta", en: "Email", text: offer.email },
-    { title: "Tel", en: "Phone", text: offer.phone },
-    { title: "Adres", en: "Address", text: offer.adress },
+    {
+      title: "Eposta",
+      en: "Email",
+      text: (company ? company.email : "") || offer.email,
+    },
+    {
+      title: "Tel",
+      en: "Phone",
+      text: (company ? company.phone : "") || offer.phone,
+    },
+    {
+      title: "Adres",
+      en: "Address",
+      text: company
+        ? `${company.addresses[0]?.district || ""} ${
+            company.addresses[0]?.city || ""
+          } ${company.addresses[0]?.zip || ""}`
+        : "" || offer.address,
+    },
   ]
   if (!offer) {
     return <div>Loading offer</div>
@@ -361,7 +471,7 @@ const Customer = ({ offer }) => {
             <div className="text-xs font-normal">Company</div>
           </div>
           <div className="px-1 col-span-5 border-b capitalize flex items-center">
-            {offer.customer}
+            {offer.customer || (company ? company.title : "No Company")}
           </div>
         </div>
         {colsData(offer).map((dd, i) => (
@@ -373,7 +483,7 @@ const Customer = ({ offer }) => {
               <div className="">{dd.title}</div>
               <div className="text-xs font-normal">{dd.en}</div>
             </div>
-            <div className="px-1 col-span-2 border-b capitalize flex items-center">
+            <div className="px-1 col-span-2 border-b flex items-center">
               {dd.text}
             </div>
           </div>
@@ -388,7 +498,7 @@ const PriceTable = ({ works, offer }) => {
     return <div>Loading works</div>
   }
   return (
-    <div className="flex flex-col border mb-6 w-full my-2  shadow-lg rounded px-2 break-inside-avoid">
+    <div className="flex flex-col border mb-6 w-full my-2  shadow-lg rounded px-2">
       <h1 className="mx-auto py-2 text-center font-semibold text-base">
         <div>Fiyatlandırma</div>
         <div className="text-xs font-normal flex items-center justify-center">
@@ -399,7 +509,7 @@ const PriceTable = ({ works, offer }) => {
       {["TL", "USD", "EUR"].map((cr, i) => (
         <React.Fragment key={i}>
           {works.filter((e) => e.price.cur === cr).length ? (
-            <React.Fragment key={i}>
+            <React.Fragment>
               <div className="grid grid-cols-8 gap-1 bg-stone-500 text-white font-medium text-sm">
                 <div className="grid grid-cols-4 gap-1">
                   <div className="text-center pl-1">No</div>
@@ -446,16 +556,18 @@ const PriceTable = ({ works, offer }) => {
                         <div className="text-center font-light text-xs">
                           {String(i + 1).padStart(2, "0")}
                         </div>
-                        <div className="col-span-3 text-center text-xs">
-                          {w.code.slice(3)}
-                        </div>
+                        <div className="col-span-3 ml-4 text-xs">{w.code}</div>
                       </div>
 
-                      <div className="col-span-3 capitalize">
+                      <div className="col-span-3 uppercase text-xs">
                         {w.product
                           ? w.product.name + " " + w.typeOfwork
-                          : w.typeOfwork}{" "}
+                          : w.typeOfwork.slice(0, 25)}{" "}
                         {w.color}
+                        {w.side === "TY" && " tek yüz"}
+                        {w.side === "CY" && " çİft yüz"}
+                        {w.gloss !== "100" && w.gloss !== "" ? " mat" : null}
+                        {w.gloss === "100" && " parlak"}
                       </div>
 
                       <div className="col-span-2 grid grid-cols-2 gap-1">
@@ -501,6 +613,7 @@ const PriceTable = ({ works, offer }) => {
 const GrandTotalTable = ({ works, offer, cur }) => {
   if (!works || !offer)
     return <div className="bg-green-500">Loading works...</div>
+  if (offer.noTotals) return null
 
   return (
     <div className="grid grid-cols-5 gap-1 mt-4 my-4 py-2">
@@ -562,7 +675,7 @@ const GrandTotalTable = ({ works, offer, cur }) => {
         )}
         <div className="grid grid-cols-11 gap-1 mt-2 font-semibold">
           <div className="col-span-6 flex items-baseline">
-            <div>Toplam</div>
+            <div>Genel Toplam</div>
             <div className="text-xs font-light pl-2">Grand Total</div>
           </div>
           <div className="col-span-4 flex items-center ml-auto">

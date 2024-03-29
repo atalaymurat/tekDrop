@@ -1,34 +1,53 @@
 import React from "react"
 import Select from "react-select"
-import { Field, ErrorMessage, useField } from "formik"
+import { Field, ErrorMessage } from "formik"
 import TextError from "./TextError"
 
 function ReactSelect(props) {
-  const { label, name, options, placeholder, isMulti, ...rest } = props
+  const { label, name, options, placeholder, isMulti, onChange,  ...rest } = props
   return (
     <div>
-      <label htmlFor={name} className="block">
+      <label htmlFor={name}>
         <span className="text-sm font-semibold text-gray-500">{label}</span>
       </label>
       <Field id={name} name={name} {...rest}>
         {(props) => {
-          const { field, form, meta } = props
+          const { field, form } = props
           return (
             <>
               <Select
-                options={options}
+                id={name}
+                className="text-sm"
                 value={
-                  field.value ?
-                  options.filter((o) => o.value === field.value._id)[0]:
-                  { label: "", value: "" }
+                  field.value
+                    ? options.filter((o) => o.value === field.value)
+                    : { value: "", label: "Seçiniz" }
                 }
-                onChange={(v) => form.setFieldValue(field.name, v)}
-                className="react-select-container text-zinc-800 text-sm"
-                classNamePrefix="react-select"
+                 // onChange={(v) =>
+                 // v
+                 //   ? form.setFieldValue(field.name, v.value)
+                 //   : form.setFieldValue(field.name, "")
+                // }
+                onChange={(selectedOption) => {
+                  form.setFieldValue(field.name, selectedOption ? selectedOption.value : "");
+                  // Call the custom onChange handler if provided
+                  if (onChange && selectedOption !== null ) {
+                    onChange(selectedOption);
+                  }
+                }}
+                options={options}
                 backspaceRemovesValue={true}
-                isMulti={isMulti}
-                placeholder={placeholder}
                 isClearable
+                isSearchable
+                theme={(theme) => ({
+                  ...theme,
+                  borderRadius: 0,
+                  colors: {
+                    ...theme.colors,
+                    primary25: 'hotpink',
+                    primary: 'black',
+                  },
+                })}
               />
             </>
           )

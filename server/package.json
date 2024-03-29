@@ -11,9 +11,11 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.18.1",
+    "express": "^4.18.2",
     "lodash": "^4.17.21",
-    "mongoose": "^6.6.0",
-    "papaparse": "^5.4.1"
+    "mongoose": "^8.1.1",
+    "mongoose-serial": "^1.0.4",
+    "papaparse": "^5.4.1",
+    "transliteration": "^2.3.5"
   }
 }

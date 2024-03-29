@@ -27,6 +27,7 @@ services:
 # API NODE EXPRESS
   express:
     container_name: express
+    restart: unless-stopped
     build:
       context: ./server
     user: "node"

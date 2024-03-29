@@ -1,4 +1,6 @@
 const _ = require("lodash")
+const Product = require("../models/product")
+const Company = require("../models/company")
 
 const calcWorkDimData = (data) => {
   const { works } = data
@@ -9,7 +11,11 @@ const calcWorkDimData = (data) => {
       let sumQuanty = 0
 
       w.dimensions.map((d, n) => {
-        let dm2 = ((Number(d.length) || 0 ) * (Number(d.width) || 0) ) / 1000000
+        let edgeThickness = w.thickness * 2 || 0
+        let dm2 =
+          ((Number(d.length) + edgeThickness || 0) *
+            (Number(d.width) + edgeThickness || 0)) /
+          1000000
         totalM2 = dm2 * (Number(d.quanty) || 0)
         sumDim += formNumber(totalM2)
         sumQuanty += Number(d.quanty)
@@ -31,6 +37,7 @@ const calcWorkDimData = (data) => {
     if (w.unit === "m") {
       let sumM = 0
       let sumQuanty = 0
+      let sumM2 = 0
 
       w.dimensions.map((d, n) => {
         let dmL = Number(d.length) / 1000
@@ -39,7 +46,14 @@ const calcWorkDimData = (data) => {
         sumQuanty += Number(d.quanty)
         works[i].dimensions[n].tLength = tLength
         // Buraya toplam m2 hesabı sonra ekle
+        let dm2 = ((Number(d.length) || 0) * (Number(d.width) || 0)) / 1000000
+        totalM2 = dm2 * (Number(d.quanty) || 0)
+        sumM2 += formNumber(totalM2)
+        works[i].dimensions[n].m2 = formNumber(dm2)
+        works[i].dimensions[n].tm2 = formNumber(totalM2)
       })
+
+      works[i].totalM_M2 = formNumber(sumM2)
       works[i].totalUnit = formNumber(sumM)
       works[i].totalQuanty = Number(sumQuanty)
       let totalPrice = sumM * Number(w.price.val)
@@ -94,9 +108,14 @@ const calcNetTotalPrice = (data) => {
 const calcKDV = (data) => {
   const { works, kdv } = data
   if (kdv > 0) {
-    let kdvTL = 0
-    kdvTL = (data.offerNetTotalPrice.TL * kdv) / 100
-    data.offerKdvPrice = { TL: formPrice(kdvTL), USD: 0, EUR: 0 }
+    const kdvTL = (data.offerNetTotalPrice.TL * kdv) / 100
+    const kdvEur = (data.offerNetTotalPrice.EUR * kdv) / 100
+    const kdvUsd = (data.offerNetTotalPrice.USD * kdv) / 100
+    data.offerKdvPrice = {
+      TL: formPrice(kdvTL),
+      USD: formPrice(kdvUsd),
+      EUR: formPrice(kdvEur),
+    }
     return
   }
   data.offerKdvPrice = { TL: 0, USD: 0, EUR: 0 }
@@ -191,4 +210,48 @@ const formPrice = (number) => {
   return n
 }
 
-module.exports = { calcWorkDimData }
+// writr code for works
+const writeCode = async (data) => {
+  const translit = require("transliteration")
+  return new Promise(async (resolve, reject) => {
+    try {
+      const promiseArray = data.works.map(async (w, i) => {
+        let pCode = ""
+
+        // assign code if product avalible as product.code
+        if (w.product) {
+          const product = await Product.findById(w.product)
+          pCode = product.code
+        } else if (w.typeOfwork) {
+          // const normalizedTypeOfWork = translit.transliterate(w.typeOfwork).slice(0,3)
+          pCode = "SPC0"
+        }
+
+        w.code = pCode
+      })
+
+      await Promise.all(promiseArray).then(() => {
+        resolve(data)
+      })
+    } catch (err) {
+      reject(err)
+    }
+  })
+}
+
+const generateOfferCode = async (offer) => {
+  const { offerType } = offer
+  const date = new Date()
+  const year = date.getFullYear().toString().substr(-2)
+  const day = date.getDate().toString().padStart(2, "0")
+  const month = (date.getMonth() + 1).toString().padStart(2, "0")
+
+  const customer = await Company.findById(offer.company)
+  const customerCode =
+    customer.normalizedTitle.slice(0, 3).toUpperCase().trim()[0] +
+      customer.normalizedTitle.slice(0, 3).toUpperCase().trim()[2] || "--"
+
+  return `${offerType}${year}${month}${day}${customerCode}`
+}
+
+module.exports = { calcWorkDimData, writeCode, generateOfferCode }

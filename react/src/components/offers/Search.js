@@ -12,12 +12,11 @@ const Search = ({ setOffers, setSterm }) => {
       const { data } = await axios.post("/search", { search: searchText })
 
       const filtered = data.map((d) => ({
-        label: d.customer,
-        value: d.customer,
+        label: d.company.title,
+        value: d.company.title,
       }))
 
       let uniqueList = _.uniqBy(filtered, "label").filter((f, i) => i < 5)
-      console.log("BEFORE SORT ", uniqueList)
 
       setSuggestList(uniqueList)
       return
@@ -31,8 +30,6 @@ const Search = ({ setOffers, setSterm }) => {
     setSterm(e.target.value)
   }
   const handleTabSelect = (formikProps, e) => {
-    console.log("KEY", e.key)
-    console.log("TARGET", e.target)
     formikProps.setFieldValue("search", e.target.textContent)
     if (e.key === "Enter") {
       formikProps.submitForm()
@@ -42,7 +39,7 @@ const Search = ({ setOffers, setSterm }) => {
   }
 
   return (
-    <div className="my-2 py-4 px-2 border-2 border-purple-500 rounded-lg shadow-sm bg-gradient-to-r from-purple-500 to-green-700">
+    <div className="my-2 py-4 px-2 border-2 border-purple-500 rounded-lg shadow-sm bg-pink-500">
       <Formik
         initialValues={{ search: "" }}
         onSubmit={async (values, { resetForm }) => {

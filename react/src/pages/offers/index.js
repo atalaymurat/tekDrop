@@ -2,7 +2,7 @@ import axios from "axios"
 import React, { useEffect, useState } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { format } from "date-fns"
-import IndexIcons from "../../components/IndexIcons"
+import IndexIcons from "../../components/offers/IndexIcons"
 import Search from "../../components/offers/Search"
 import { differenceInDays } from "date-fns"
 
@@ -13,15 +13,12 @@ function Index() {
   const { state } = useLocation()
 
   useEffect(() => {
-    console.log("INDEX USE EFFECT state", state)
-    console.log("INDEX USE EFFECT sterm", sterm)
     const getDataFromState = async () => {
       if (state) {
         setSterm(state)
         const { data } = await axios.post("/search", { search: state })
         setOffers(data)
         navigate("/offer")
-        console.log("INDEX USE EFFECT NAVIGATE RESET", state)
         return
       }
     }
@@ -93,16 +90,14 @@ function Index() {
       )}
       <div className="my-4">
         {offers.length > 0 &&
-          offers.slice(0, 50).map((of, i) => (
+          offers.map((of, i) => (
             <div
               key={`of-${i}`}
               className={`grid grid-cols-12 font-medium uppercase 
-              ${of.status && of.status === "imalat" ? "text-green-700" : null}
-              ${of.status && of.status === "bitti" ? "text-stone-600" : null}
-              ${of.status && of.status === "siparis" ? "text-blue-500" : null}
-              ${
-                of.status && of.status === "beklemede" ? "text-amber-500" : null
-              }
+              ${of.offerType === "SV" ? "text-green-700" : null}
+              ${of.offerType === "SZ" ? "text-blue-500" : null}
+              ${of.offerType === "SP" ? "text-red-500" : null}
+              ${of.offerType === "TK" ? "text-yellow-500" : null}
               `}
             >
               <div className="px-2 py-2 border-b">{i + 1}</div>
@@ -112,13 +107,18 @@ function Index() {
                 {of.offerCode}
               </div>
               <div className="px-2 py-2 border-b col-span-5">
-                <div>{of.customer}</div>
+                <div>
+                  {of.company ? of.company.title :  (of.customer ? of.customer : "NO COMPANY")  }
+                  <br /> {of.company ? of.company._id : "no company"}
+                </div>
                 <div className="text-xs font-light">
                   {of.startDate &&
                     differenceInDays(
                       of.finishDate ? new Date(of.finishDate) : new Date(),
                       new Date(of.startDate)
-                    ) + " " + "gün"}
+                    ) +
+                      " " +
+                      "gün"}
                 </div>
               </div>
               <IndexIcons of={of} state={sterm} />

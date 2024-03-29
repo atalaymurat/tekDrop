@@ -18,7 +18,7 @@ function Select(props) {
       >
         {options.map((op) => {
           return (
-            <option value={op.value} key={op.value}>
+            <option value={op.value} key={op.value} className='capitalize'>
               {op.label}
             </option>
           )

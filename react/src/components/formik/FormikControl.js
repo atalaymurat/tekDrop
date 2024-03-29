@@ -7,10 +7,11 @@ import ReactSelect from "./ReactSelect";
 import DatePicker from "./DatePicker"
 
 function FormikControl(props) {
-  const { control, ...rest } = props;
+  const { control, inputRef,  ...rest } = props;
+
   switch (control) {
     case "input":
-      return <Input {...rest} />;
+      return <Input inputRef={inputRef} {...rest} />;
     case "checkbox":
       return <Checkbox {...rest} />;
     case "select":
@@ -23,6 +24,7 @@ function FormikControl(props) {
       return < DatePicker {...rest} />
 
     default:
+      console.error(`Unsupported control type: ${control}`);
       return null;
   }
 }

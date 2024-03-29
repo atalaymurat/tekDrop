@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import OfferForm from "../../components/OfferForm"
+import OfferForm from "../../components/offers/OfferForm"
 import { useParams } from "react-router-dom"
 import axios from "axios"
 
@@ -9,7 +9,7 @@ function Edit() {
 
   useEffect(() => {
     const getData = async () => {
-      const { data } = await axios.get(`/offers/${id}`)
+      const { data } = await axios.get(`/offers/edit/${id}`)
       setOffer(data)
     }
     getData()
@@ -18,7 +18,7 @@ function Edit() {
   return (
     <div>
       <div className="font-bold text-4xl text-center my-2">Edit#Show</div>
-      <OfferForm  offer={offer}/>
+      <OfferForm offer={offer} />
     </div>
   )
 }

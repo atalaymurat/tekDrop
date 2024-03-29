@@ -46,3 +46,16 @@ mongodump --db=app_db
 restore collections
 
 mongorestore --db=app_db ./app_db
+
+UPGRADE
+
+server and react 
+ncu -u
+npm install both
+in root folder
+docker compose down
+exit --force // re open a terminal be sure all docker process stopped...!
+docker-compose build --no-cache
+docker image prune
+
+

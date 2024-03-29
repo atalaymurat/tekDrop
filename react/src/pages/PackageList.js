@@ -34,10 +34,14 @@ function PackageList() {
 
 const Company = ({ offer }) => {
   const fieldData = [
-    { title: "Firma", en: "Company", data: offer.customer },
-    { title: "Adres", en: "Address", data: offer.adress },
+    { title: "Firma", en: "Company", data: offer.company.title },
+    {
+      title: "Adres",
+      en: "Address",
+      data: offer.company.addresses[0].district,
+    },
     { title: "Yetkili", en: "Person", data: offer.person },
-    { title: "Telefon", en: "Phone", data: offer.phone },
+    { title: "Telefon", en: "Phone", data: offer.company.phone },
     { title: "Paket Tipi", en: "Package Type", data: offer.packaging },
     { title: "Teslim Yeri", en: "Control", data: offer.salesConditions },
     { title: "Kontrol Eden", en: "Control", data: "" },
@@ -62,10 +66,16 @@ const Company = ({ offer }) => {
 const List = ({ offer }) => {
   const { works } = offer
   return (
-    <div className="grid grid-cols-3 gap-1 my-4 break-before-auto border border-green-700 p-2">
+    <div className="grid grid-cols-3 gap-1 my-4 border border-green-700 p-2">
       {works.map((w, i) => {
         const fData = [
-          { title: "Sipariş", en: "Order", data: w.product ? w.product.name + " " + w.typeOfwork : w.typeOfwork  },
+          {
+            title: "Sipariş",
+            en: "Order",
+            data: w.product
+              ? w.product.name + " " + w.typeOfwork
+              : w.typeOfwork,
+          },
           { title: "Renk", en: "Color", data: w.color },
           { title: "Parlaklık", en: "Gloss", data: w.gloss },
           { title: "Yüz", en: "Side", data: w.side },
@@ -78,7 +88,7 @@ const List = ({ offer }) => {
               return (
                 <React.Fragment key={n}>
                   <div
-                    className={`grid gap-1 break-inside-avoid ${
+                    className={`grid gap-1 ${
                       n === 0 ? "col-span-3 grid-cols-9" : "grid-cols-3"
                     }`}
                   >
@@ -94,7 +104,7 @@ const List = ({ offer }) => {
                 </React.Fragment>
               )
             })}
-            <div className="col-span-3 border border-green-800 mb-6 break-after-auto">
+            <div className="col-span-3 border border-green-800 mb-6">
               <Dims dims={w.dimensions} thickness={w.thickness} />
             </div>
           </React.Fragment>
@@ -106,26 +116,25 @@ const List = ({ offer }) => {
 const Dims = ({ dims, thickness }) => {
   const renderBox = (quanty) => {
     let result = []
-    let qnt =
-      quanty <= 100 ? quanty / 2 : quanty = 1
+    let qnt = quanty <= 100 ? quanty / 2 : (quanty = 1)
     for (let i = 0; i < qnt; i++) {
       result.push(
         <React.Fragment key={i}>
-        <svg
-          aria-hidden="true"
-          className="w-10 h-10 border"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1}
-          viewBox="0 0 22 22"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+          <svg
+            aria-hidden="true"
+            className="w-7 h-7 border"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1}
+            viewBox="0 0 22 22"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M5.25 7.5A2.25 2.25 0 017.5 5.25h9a2.25 2.25 0 012.25 2.25v9a2.25 2.25 0 01-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25v-9z"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </React.Fragment>
       )
     }
@@ -133,30 +142,34 @@ const Dims = ({ dims, thickness }) => {
   }
   return (
     <>
-      <div className="grid grid-cols-2 gap-1 break-inside-avoid">
+      <div className="grid grid-cols-2 gap-1">
         <React.Fragment>
-          <div className="border grid grid-cols-11 gap-1 font-medium">
-            <div className="border">No</div>
-            <div className="border col-span-3">Boy</div>
-            <div className="border col-span-3">En</div>
-            <div className="border col-span-2">Kalınlık</div>
-            <div className="border col-span-2">Adet</div>
+          <div className="border grid grid-cols-5 gap-1 font-medium">
+            <div className="grid grid-cols-5 gap-1 col-span-3">
+              <div className="border">No</div>
+              <div className="border ">Boy</div>
+              <div className="border">En</div>
+              <div className="border">Kal</div>
+              <div className="border">Adet</div>
+            </div>
+            <div className="border col-span-2">Acıklama</div>
           </div>
           <div className="border font-medium">Kontrol</div>
         </React.Fragment>
         {dims.map((d, i) => {
           return (
             <React.Fragment key={i}>
-              <div className="border grid grid-cols-11 gap-1">
-                <div className="border">{String(i + 1).padStart(2, "0")}</div>
-                <div className="border col-span-3">{d.length}</div>
-                <div className="border col-span-3">{d.width}</div>
-                <div className="border col-span-2">
-                  {thickness && thickness}
+              <div className="border grid grid-cols-5 gap-1 font-medium break-after-auto">
+                <div className="grid grid-cols-5 gap-1 col-span-3">
+                  <div className="border">{String(i + 1).padStart(2, "0")}</div>
+                  <div className="border ">{d.length}</div>
+                  <div className="border">{d.width}</div>
+                  <div className="border">{thickness && thickness}</div>
+                  <div className="border">{d.quanty}</div>
                 </div>
-                <div className="border col-span-2">{d.quanty}</div>
+                <div className="border col-span-2">{d.desc}</div>
               </div>
-              <div className="border flex flex-wrap">{renderBox(d.quanty)}</div>
+              <div className="border font-medium w-full grid grid-cols-12">{renderBox(d.quanty)}</div>
             </React.Fragment>
           )
         })}

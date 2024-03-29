@@ -5,7 +5,10 @@ import App from "./App"
 import reportWebVitals from "./reportWebVitals"
 import axios from "axios"
 
-axios.defaults.baseURL = "http://192.168.1.32:3001"
+// change localhost to 192.168.1.101 or server machine ip on network
+const serverIp = "192.168.1.101"
+const localHost = "localhost"
+axios.defaults.baseURL = `http://${serverIp}:3001`
 
 const root = ReactDOM.createRoot(document.getElementById("root"))
 root.render(
